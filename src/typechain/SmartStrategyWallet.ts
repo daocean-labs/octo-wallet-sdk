@@ -66,6 +66,7 @@ export type UserOperationStructOutput = [
 export interface SmartStrategyWalletInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "addOwner"
       | "entryPoint"
       | "execute"
       | "executeAsSigner"
@@ -84,9 +85,13 @@ export interface SmartStrategyWalletInterface extends Interface {
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "Initialized" | "WalletInitialized"
+    nameOrSignatureOrTopic: "Initialized" | "OwnerAdded" | "WalletInitialized"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "addOwner",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "entryPoint",
     values?: undefined
@@ -114,7 +119,7 @@ export interface SmartStrategyWalletInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [AddressLike[]]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isOwner",
@@ -158,6 +163,7 @@ export interface SmartStrategyWalletInterface extends Interface {
     values: [UserOperationStruct, BytesLike, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "addOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "entryPoint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
@@ -217,12 +223,24 @@ export namespace InitializedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
+export namespace OwnerAddedEvent {
+  export type InputTuple = [newOwner: AddressLike];
+  export type OutputTuple = [newOwner: string];
+  export interface OutputObject {
+    newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace WalletInitializedEvent {
-  export type InputTuple = [entryPoint: AddressLike, owners: AddressLike[]];
-  export type OutputTuple = [entryPoint: string, owners: string[]];
+  export type InputTuple = [entryPoint: AddressLike, creator: AddressLike];
+  export type OutputTuple = [entryPoint: string, creator: string];
   export interface OutputObject {
     entryPoint: string;
-    owners: string[];
+    creator: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -273,6 +291,8 @@ export interface SmartStrategyWallet extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  addOwner: TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+
   entryPoint: TypedContractMethod<[], [string], "view">;
 
   execute: TypedContractMethod<
@@ -303,11 +323,7 @@ export interface SmartStrategyWallet extends BaseContract {
 
   getWalletFactory: TypedContractMethod<[], [string], "view">;
 
-  initialize: TypedContractMethod<
-    [initialOwners: AddressLike[]],
-    [void],
-    "nonpayable"
-  >;
+  initialize: TypedContractMethod<[creator: AddressLike], [void], "nonpayable">;
 
   isOwner: TypedContractMethod<[account: AddressLike], [boolean], "view">;
 
@@ -375,6 +391,9 @@ export interface SmartStrategyWallet extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "addOwner"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "entryPoint"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -413,7 +432,7 @@ export interface SmartStrategyWallet extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "initialize"
-  ): TypedContractMethod<[initialOwners: AddressLike[]], [void], "nonpayable">;
+  ): TypedContractMethod<[creator: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "isOwner"
   ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
@@ -487,6 +506,13 @@ export interface SmartStrategyWallet extends BaseContract {
     InitializedEvent.OutputObject
   >;
   getEvent(
+    key: "OwnerAdded"
+  ): TypedContractEvent<
+    OwnerAddedEvent.InputTuple,
+    OwnerAddedEvent.OutputTuple,
+    OwnerAddedEvent.OutputObject
+  >;
+  getEvent(
     key: "WalletInitialized"
   ): TypedContractEvent<
     WalletInitializedEvent.InputTuple,
@@ -506,7 +532,18 @@ export interface SmartStrategyWallet extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "WalletInitialized(address,address[])": TypedContractEvent<
+    "OwnerAdded(address)": TypedContractEvent<
+      OwnerAddedEvent.InputTuple,
+      OwnerAddedEvent.OutputTuple,
+      OwnerAddedEvent.OutputObject
+    >;
+    OwnerAdded: TypedContractEvent<
+      OwnerAddedEvent.InputTuple,
+      OwnerAddedEvent.OutputTuple,
+      OwnerAddedEvent.OutputObject
+    >;
+
+    "WalletInitialized(address,address)": TypedContractEvent<
       WalletInitializedEvent.InputTuple,
       WalletInitializedEvent.OutputTuple,
       WalletInitializedEvent.OutputObject

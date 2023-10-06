@@ -72,7 +72,7 @@ export class OctoDefiWallet extends UserOperationBuilder {
       instance.initCode = hexConcat([
         await instance.factory.getAddress(),
         instance.factory.interface.encodeFunctionData("createAccount", [
-          [await instance.signer.getAddress()],
+          await instance.signer.getAddress(),
           opts?.salt ? opts.salt.toString() : BigInt(0),
         ]),
       ]);

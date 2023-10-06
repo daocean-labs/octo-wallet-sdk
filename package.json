@@ -1,19 +1,20 @@
 {
   "name": "octo-defi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "types": "./dist/index.d.ts",
   "main": "dist/index.js",
   "engines": {
     "node": ">=14.0.0"
   },
+  "repository": "git@github.com/Meiswinkel1991/octo-defi-js.git",
+  "author": "stackup-wallet",
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "gen:types": "typechain --target=ethers-v6 --out-dir=src/typechain 'abi/*.json'",
     "build": "npm run clean && npm run gen:types && tsc"
   },
-  "author": "",
   "license": "ISC",
   "devDependencies": {
     "ethers": "^6.7.1",

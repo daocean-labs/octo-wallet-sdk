@@ -31,11 +31,11 @@ export interface SmartStrategyWalletFactoryInterface extends Interface {
 
   encodeFunctionData(
     functionFragment: "createAccount",
-    values: [AddressLike[], BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getWalletAddress",
-    values: [AddressLike[], BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getWalletImplementation",
@@ -100,13 +100,13 @@ export interface SmartStrategyWalletFactory extends BaseContract {
   ): Promise<this>;
 
   createAccount: TypedContractMethod<
-    [owners: AddressLike[], salt: BigNumberish],
+    [creator: AddressLike, salt: BigNumberish],
     [string],
     "nonpayable"
   >;
 
   getWalletAddress: TypedContractMethod<
-    [owners: AddressLike[], salt: BigNumberish],
+    [creator: AddressLike, salt: BigNumberish],
     [string],
     "view"
   >;
@@ -120,14 +120,14 @@ export interface SmartStrategyWalletFactory extends BaseContract {
   getFunction(
     nameOrSignature: "createAccount"
   ): TypedContractMethod<
-    [owners: AddressLike[], salt: BigNumberish],
+    [creator: AddressLike, salt: BigNumberish],
     [string],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "getWalletAddress"
   ): TypedContractMethod<
-    [owners: AddressLike[], salt: BigNumberish],
+    [creator: AddressLike, salt: BigNumberish],
     [string],
     "view"
   >;

@@ -62,6 +62,19 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnerAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "contract IEntryPoint",
         name: "entryPoint",
@@ -69,13 +82,26 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "address[]",
-        name: "owners",
-        type: "address[]",
+        internalType: "address",
+        name: "creator",
+        type: "address",
       },
     ],
     name: "WalletInitialized",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "addOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
@@ -211,9 +237,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address[]",
-        name: "initialOwners",
-        type: "address[]",
+        internalType: "address",
+        name: "creator",
+        type: "address",
       },
     ],
     name: "initialize",
