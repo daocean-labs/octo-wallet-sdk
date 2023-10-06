@@ -1,0 +1,29 @@
+{
+  "name": "test-octo-package",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen:types": "typechain --target=ethers-v6 --out-dir=src/typechain 'abi/*.json'",
+    "build": "npm run clean && npm run gen:types && tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ethers": "^6.7.1",
+    "typescript": "^5.2.2",
+    "userop": "^0.3.3"
+  },
+  "dependencies": {
+    "@typechain/ethers-v6": "^0.5.0",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "typechain": "^8.3.1"
+  }
+}
