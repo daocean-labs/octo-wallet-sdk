@@ -1,12 +1,12 @@
 {
-  "name": "test-octo-package",
+  "name": "octo-defi",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
