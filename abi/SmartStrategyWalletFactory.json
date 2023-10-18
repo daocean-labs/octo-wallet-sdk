@@ -6,6 +6,11 @@
           "internalType": "address",
           "name": "entryPoint",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "strategyBuilder",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",

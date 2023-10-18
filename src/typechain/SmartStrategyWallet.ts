@@ -67,30 +67,52 @@ export interface SmartStrategyWalletInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addOwner"
+      | "concatenateBytes"
       | "entryPoint"
       | "execute"
       | "executeAsSigner"
       | "executeBatch"
       | "executeBatchAsSigner"
+      | "executeStrategy"
+      | "executeTactic"
       | "getNonce"
+      | "getStorageSlot"
+      | "getStrategy"
+      | "getStrategyBuilderAddress"
+      | "getValue"
       | "getWalletFactory"
       | "initialize"
       | "isOwner"
       | "onERC1155BatchReceived"
       | "onERC1155Received"
       | "onERC721Received"
+      | "removeOwner"
+      | "setStrategy"
+      | "setStrategyBuilder"
+      | "setStrategyWithInputs"
+      | "setTacticValue"
       | "supportsInterface"
       | "tokensReceived"
       | "validateUserOp"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "Initialized" | "OwnerAdded" | "WalletInitialized"
+    nameOrSignatureOrTopic:
+      | "Initialized"
+      | "OwnerAdded"
+      | "OwnerRemoved"
+      | "StrategyAdded"
+      | "StrategyBuilderSetup"
+      | "WalletInitialized"
   ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "addOwner",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "concatenateBytes",
+    values: [BytesLike[]]
   ): string;
   encodeFunctionData(
     functionFragment: "entryPoint",
@@ -112,14 +134,35 @@ export interface SmartStrategyWalletInterface extends Interface {
     functionFragment: "executeBatchAsSigner",
     values: [AddressLike[], BigNumberish[], BytesLike[]]
   ): string;
+  encodeFunctionData(
+    functionFragment: "executeStrategy",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executeTactic",
+    values: [AddressLike, BytesLike, BytesLike[]]
+  ): string;
   encodeFunctionData(functionFragment: "getNonce", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getStorageSlot",
+    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStrategy",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStrategyBuilderAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "getValue", values: [BytesLike]): string;
   encodeFunctionData(
     functionFragment: "getWalletFactory",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [AddressLike]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isOwner",
@@ -144,6 +187,26 @@ export interface SmartStrategyWalletInterface extends Interface {
     values: [AddressLike, AddressLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeOwner",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategy",
+    values: [BytesLike[], BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyBuilder",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setStrategyWithInputs",
+    values: [BytesLike[], BigNumberish, BytesLike[], BytesLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTacticValue",
+    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
@@ -164,6 +227,10 @@ export interface SmartStrategyWalletInterface extends Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "addOwner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "concatenateBytes",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "entryPoint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
   decodeFunctionResult(
@@ -178,7 +245,28 @@ export interface SmartStrategyWalletInterface extends Interface {
     functionFragment: "executeBatchAsSigner",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeTactic",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getNonce", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getStorageSlot",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getStrategyBuilderAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getValue", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getWalletFactory",
     data: BytesLike
@@ -195,6 +283,26 @@ export interface SmartStrategyWalletInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "onERC721Received",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategy",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyBuilder",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setStrategyWithInputs",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTacticValue",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -228,6 +336,43 @@ export namespace OwnerAddedEvent {
   export type OutputTuple = [newOwner: string];
   export interface OutputObject {
     newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnerRemovedEvent {
+  export type InputTuple = [removedOwner: AddressLike];
+  export type OutputTuple = [removedOwner: string];
+  export interface OutputObject {
+    removedOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace StrategyAddedEvent {
+  export type InputTuple = [strategyID: BigNumberish, strategy: BytesLike];
+  export type OutputTuple = [strategyID: bigint, strategy: string];
+  export interface OutputObject {
+    strategyID: bigint;
+    strategy: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace StrategyBuilderSetupEvent {
+  export type InputTuple = [strategyBuilderAddress: AddressLike];
+  export type OutputTuple = [strategyBuilderAddress: string];
+  export interface OutputObject {
+    strategyBuilderAddress: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -293,6 +438,12 @@ export interface SmartStrategyWallet extends BaseContract {
 
   addOwner: TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
 
+  concatenateBytes: TypedContractMethod<
+    [byteArray: BytesLike[]],
+    [string],
+    "view"
+  >;
+
   entryPoint: TypedContractMethod<[], [string], "view">;
 
   execute: TypedContractMethod<
@@ -319,11 +470,52 @@ export interface SmartStrategyWallet extends BaseContract {
     "nonpayable"
   >;
 
+  executeStrategy: TypedContractMethod<
+    [strategyID: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  executeTactic: TypedContractMethod<
+    [
+      tacticLibrary: AddressLike,
+      functionSelector: BytesLike,
+      arguments: BytesLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
+
   getNonce: TypedContractMethod<[], [bigint], "view">;
+
+  getStorageSlot: TypedContractMethod<
+    [
+      libAddress: AddressLike,
+      argument: BigNumberish,
+      strategyID: BigNumberish,
+      tacticPosition: BigNumberish
+    ],
+    [string],
+    "view"
+  >;
+
+  getStrategy: TypedContractMethod<
+    [strategyID: BigNumberish],
+    [string],
+    "view"
+  >;
+
+  getStrategyBuilderAddress: TypedContractMethod<[], [string], "view">;
+
+  getValue: TypedContractMethod<[storageSlot: BytesLike], [string], "view">;
 
   getWalletFactory: TypedContractMethod<[], [string], "view">;
 
-  initialize: TypedContractMethod<[creator: AddressLike], [void], "nonpayable">;
+  initialize: TypedContractMethod<
+    [creator: AddressLike, strategyBuilder: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   isOwner: TypedContractMethod<[account: AddressLike], [boolean], "view">;
 
@@ -355,6 +547,47 @@ export interface SmartStrategyWallet extends BaseContract {
     [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BytesLike],
     [string],
     "view"
+  >;
+
+  removeOwner: TypedContractMethod<
+    [ownerToRemove: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setStrategy: TypedContractMethod<
+    [strategyByteArray: BytesLike[], strategyID: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  setStrategyBuilder: TypedContractMethod<
+    [strategyBuilderAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setStrategyWithInputs: TypedContractMethod<
+    [
+      strategyByteArray: BytesLike[],
+      strategyID: BigNumberish,
+      storageSlots: BytesLike[],
+      inputs: BytesLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
+
+  setTacticValue: TypedContractMethod<
+    [
+      libAddress: AddressLike,
+      argument: BigNumberish,
+      strategyID: BigNumberish,
+      tacticPosition: BigNumberish,
+      input: BytesLike
+    ],
+    [void],
+    "nonpayable"
   >;
 
   supportsInterface: TypedContractMethod<
@@ -394,6 +627,9 @@ export interface SmartStrategyWallet extends BaseContract {
     nameOrSignature: "addOwner"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "concatenateBytes"
+  ): TypedContractMethod<[byteArray: BytesLike[]], [string], "view">;
+  getFunction(
     nameOrSignature: "entryPoint"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -425,14 +661,53 @@ export interface SmartStrategyWallet extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "executeStrategy"
+  ): TypedContractMethod<[strategyID: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "executeTactic"
+  ): TypedContractMethod<
+    [
+      tacticLibrary: AddressLike,
+      functionSelector: BytesLike,
+      arguments: BytesLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "getNonce"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getStorageSlot"
+  ): TypedContractMethod<
+    [
+      libAddress: AddressLike,
+      argument: BigNumberish,
+      strategyID: BigNumberish,
+      tacticPosition: BigNumberish
+    ],
+    [string],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getStrategy"
+  ): TypedContractMethod<[strategyID: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "getStrategyBuilderAddress"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getValue"
+  ): TypedContractMethod<[storageSlot: BytesLike], [string], "view">;
   getFunction(
     nameOrSignature: "getWalletFactory"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "initialize"
-  ): TypedContractMethod<[creator: AddressLike], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [creator: AddressLike, strategyBuilder: AddressLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "isOwner"
   ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
@@ -468,6 +743,48 @@ export interface SmartStrategyWallet extends BaseContract {
     [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BytesLike],
     [string],
     "view"
+  >;
+  getFunction(
+    nameOrSignature: "removeOwner"
+  ): TypedContractMethod<[ownerToRemove: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "setStrategy"
+  ): TypedContractMethod<
+    [strategyByteArray: BytesLike[], strategyID: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setStrategyBuilder"
+  ): TypedContractMethod<
+    [strategyBuilderAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setStrategyWithInputs"
+  ): TypedContractMethod<
+    [
+      strategyByteArray: BytesLike[],
+      strategyID: BigNumberish,
+      storageSlots: BytesLike[],
+      inputs: BytesLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setTacticValue"
+  ): TypedContractMethod<
+    [
+      libAddress: AddressLike,
+      argument: BigNumberish,
+      strategyID: BigNumberish,
+      tacticPosition: BigNumberish,
+      input: BytesLike
+    ],
+    [void],
+    "nonpayable"
   >;
   getFunction(
     nameOrSignature: "supportsInterface"
@@ -513,6 +830,27 @@ export interface SmartStrategyWallet extends BaseContract {
     OwnerAddedEvent.OutputObject
   >;
   getEvent(
+    key: "OwnerRemoved"
+  ): TypedContractEvent<
+    OwnerRemovedEvent.InputTuple,
+    OwnerRemovedEvent.OutputTuple,
+    OwnerRemovedEvent.OutputObject
+  >;
+  getEvent(
+    key: "StrategyAdded"
+  ): TypedContractEvent<
+    StrategyAddedEvent.InputTuple,
+    StrategyAddedEvent.OutputTuple,
+    StrategyAddedEvent.OutputObject
+  >;
+  getEvent(
+    key: "StrategyBuilderSetup"
+  ): TypedContractEvent<
+    StrategyBuilderSetupEvent.InputTuple,
+    StrategyBuilderSetupEvent.OutputTuple,
+    StrategyBuilderSetupEvent.OutputObject
+  >;
+  getEvent(
     key: "WalletInitialized"
   ): TypedContractEvent<
     WalletInitializedEvent.InputTuple,
@@ -541,6 +879,39 @@ export interface SmartStrategyWallet extends BaseContract {
       OwnerAddedEvent.InputTuple,
       OwnerAddedEvent.OutputTuple,
       OwnerAddedEvent.OutputObject
+    >;
+
+    "OwnerRemoved(address)": TypedContractEvent<
+      OwnerRemovedEvent.InputTuple,
+      OwnerRemovedEvent.OutputTuple,
+      OwnerRemovedEvent.OutputObject
+    >;
+    OwnerRemoved: TypedContractEvent<
+      OwnerRemovedEvent.InputTuple,
+      OwnerRemovedEvent.OutputTuple,
+      OwnerRemovedEvent.OutputObject
+    >;
+
+    "StrategyAdded(uint8,bytes)": TypedContractEvent<
+      StrategyAddedEvent.InputTuple,
+      StrategyAddedEvent.OutputTuple,
+      StrategyAddedEvent.OutputObject
+    >;
+    StrategyAdded: TypedContractEvent<
+      StrategyAddedEvent.InputTuple,
+      StrategyAddedEvent.OutputTuple,
+      StrategyAddedEvent.OutputObject
+    >;
+
+    "StrategyBuilderSetup(address)": TypedContractEvent<
+      StrategyBuilderSetupEvent.InputTuple,
+      StrategyBuilderSetupEvent.OutputTuple,
+      StrategyBuilderSetupEvent.OutputObject
+    >;
+    StrategyBuilderSetup: TypedContractEvent<
+      StrategyBuilderSetupEvent.InputTuple,
+      StrategyBuilderSetupEvent.OutputTuple,
+      StrategyBuilderSetupEvent.OutputObject
     >;
 
     "WalletInitialized(address,address)": TypedContractEvent<

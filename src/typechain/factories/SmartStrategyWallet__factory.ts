@@ -27,7 +27,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "SmartStrategyWallet__NoOwnersInArray",
+    name: "OwnableHandler__NeedAtleastOneOwner",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "OwnableHandler__OnlyOwnerAllowed",
     type: "error",
   },
   {
@@ -42,7 +47,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "SmartStrategyWallet__OnlyOwnerAllowed",
+    name: "StrategyHandler__NoStrategyBuilderSet",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "StrategyHandler__NoValidTacticIDs",
     type: "error",
   },
   {
@@ -75,6 +85,51 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "address",
+        name: "removedOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnerRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "strategy",
+        type: "bytes",
+      },
+    ],
+    name: "StrategyAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "strategyBuilderAddress",
+        type: "address",
+      },
+    ],
+    name: "StrategyBuilderSetup",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "contract IEntryPoint",
         name: "entryPoint",
@@ -101,6 +156,25 @@ const _abi = [
     name: "addOwner",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4[]",
+        name: "byteArray",
+        type: "bytes4[]",
+      },
+    ],
+    name: "concatenateBytes",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -209,6 +283,42 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+    ],
+    name: "executeStrategy",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tacticLibrary",
+        type: "address",
+      },
+      {
+        internalType: "bytes4",
+        name: "functionSelector",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes[]",
+        name: "arguments",
+        type: "bytes[]",
+      },
+    ],
+    name: "executeTactic",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getNonce",
     outputs: [
@@ -216,6 +326,91 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "libAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint8",
+        name: "argument",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "tacticPosition",
+        type: "uint8",
+      },
+    ],
+    name: "getStorageSlot",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+    ],
+    name: "getStrategy",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getStrategyBuilderAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "storageSlot",
+        type: "bytes32",
+      },
+    ],
+    name: "getValue",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
       },
     ],
     stateMutability: "view",
@@ -239,6 +434,11 @@ const _abi = [
       {
         internalType: "address",
         name: "creator",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "strategyBuilder",
         type: "address",
       },
     ],
@@ -376,6 +576,111 @@ const _abi = [
       },
     ],
     stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "ownerToRemove",
+        type: "address",
+      },
+    ],
+    name: "removeOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4[]",
+        name: "strategyByteArray",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+    ],
+    name: "setStrategy",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "strategyBuilderAddress",
+        type: "address",
+      },
+    ],
+    name: "setStrategyBuilder",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes4[]",
+        name: "strategyByteArray",
+        type: "bytes4[]",
+      },
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes32[]",
+        name: "storageSlots",
+        type: "bytes32[]",
+      },
+      {
+        internalType: "bytes[]",
+        name: "inputs",
+        type: "bytes[]",
+      },
+    ],
+    name: "setStrategyWithInputs",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "libAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint8",
+        name: "argument",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "strategyID",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8",
+        name: "tacticPosition",
+        type: "uint8",
+      },
+      {
+        internalType: "bytes",
+        name: "input",
+        type: "bytes",
+      },
+    ],
+    name: "setTacticValue",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

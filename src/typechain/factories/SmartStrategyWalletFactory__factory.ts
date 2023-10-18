@@ -16,6 +16,11 @@ const _abi = [
         name: "entryPoint",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "strategyBuilder",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
