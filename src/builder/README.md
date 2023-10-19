@@ -5,7 +5,7 @@
 ### Importing the Class
 
 ```typescript
-import { OctoDefiWalletUserOpBuilder } from "octodefi-wallet";
+import { OctoDefiWalletUserOpBuilder } from "octo-defi";
 ```
 
 ### Initializing the OctoDefiWalletUserOpBuilder
