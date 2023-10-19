@@ -1,8 +1,11 @@
 import { OctoDefiWalletUserOpBuilder } from "../src";
 import { Client } from "userop";
 import * as config from "../src/utils/helper-test-config";
-import { Wallet, ethers, parseEther } from "ethers";
-import { EntryPoint__factory } from "../src/typechain";
+import { JsonRpcProvider, Wallet, ethers, parseEther } from "ethers";
+import {
+  EntryPoint__factory,
+  SmartStrategyWallet__factory,
+} from "../src/typechain";
 import { UserOperationStruct } from "../src/typechain/EntryPoint";
 
 describe("OctoDefiWalletUserOpBuilder", () => {
@@ -21,7 +24,8 @@ describe("OctoDefiWalletUserOpBuilder", () => {
       const builder = await OctoDefiWalletUserOpBuilder.init(
         signer,
         stackupRpcUrl,
-        factoryAddress
+        factoryAddress,
+        strategyBuilderAddress
       );
     });
   });
@@ -37,7 +41,8 @@ describe("OctoDefiWalletUserOpBuilder", () => {
       const builder = await OctoDefiWalletUserOpBuilder.init(
         signerWallet,
         stackupRpcUrl,
-        factoryAddress
+        factoryAddress,
+        strategyBuilderAddress
       );
 
       const balance = await signer.provider?.getBalance(builder.getSender());
@@ -48,43 +53,37 @@ describe("OctoDefiWalletUserOpBuilder", () => {
       ) {
         const tx = await signer.sendTransaction({
           to: builder.getSender(),
-          value: parseEther("0.01"),
+          value: parseEther("0.005"),
         });
 
-        const resp = await tx.wait(3);
+        const resp = await tx.wait(2);
         console.log(resp);
       }
 
       const signature = builder.getSignature();
       console.log(signature);
 
-      // builder.execute(
-      //   "0x9e867802DdF0CeA68455B6feA38cCA8d78a4A8eF",
-      //   parseEther("0.002"),
-      //   "0x"
-      // );
-
-      // builder.addOwner("0x9e867802DdF0CeA68455B6feA38cCA8d78a4A8eF");
       builder.addOwner(newOwner);
 
       const userOp = await builder.buildOp(entryPointAddress, chainID);
       console.log(userOp);
 
-      // const res = await client.sendUserOperation(builder);
+      const res = await client.sendUserOperation(builder);
 
-      // const env = await res.wait();
-      // console.log(env);
+      const env = await res.wait();
+      console.log(env);
 
-      const entryPoint = EntryPoint__factory.connect(entryPointAddress, signer);
+      const smartContractWalletAddress = await builder.proxy.getAddress();
 
-      const userOpInput: UserOperationStruct = userOp as UserOperationStruct;
+      const provider = new JsonRpcProvider(rpcURL);
+      const scw = SmartStrategyWallet__factory.connect(
+        smartContractWalletAddress,
+        provider
+      );
 
-      const signerAddress = await signer.getAddress();
-      const trx = await entryPoint.handleOps([userOpInput], signerAddress);
+      const isOwner = await scw.isOwner(newOwner);
 
-      await trx.wait();
-
-      console.log(trx);
-    }, 60000);
+      expect(isOwner).toBeTruthy();
+    }, 70000);
   });
 });

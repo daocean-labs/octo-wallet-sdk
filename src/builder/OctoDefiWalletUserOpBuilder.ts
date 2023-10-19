@@ -21,8 +21,6 @@ import {
   SmartStrategyWalletFactory__factory,
   SmartStrategyWallet as SmartStrategyWalletImpl,
   SmartStrategyWallet__factory,
-  StrategyBuilder,
-  StrategyBuilder__factory,
 } from "../typechain";
 import { ERC4337 } from "userop/dist/constants";
 import { hexConcat } from "@ethersproject/bytes";
@@ -40,6 +38,7 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
   private factory: SmartStrategyWalletFactory;
   private signer: ethers.Signer;
   private initCode: string;
+  private strategyBuilderAddress: string;
 
   proxy: SmartStrategyWalletImpl;
 
@@ -47,6 +46,7 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     signer: ethers.Signer,
     rpcURL: string,
     factoryAddress: string,
+    strategyBuilderAddress: string,
     opts?: IPresetBuilderOpts
   ) {
     super();
@@ -62,6 +62,7 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     this.factory = SmartStrategyWalletFactory__factory.connect(factoryAddress);
     this.initCode = "0x";
     this.proxy = SmartStrategyWallet__factory.connect(ZeroAddress);
+    this.strategyBuilderAddress = strategyBuilderAddress;
   }
 
   private resolveAccount: UserOperationMiddlewareFn = async (ctx) => {
@@ -73,12 +74,14 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     signer: ethers.Signer,
     rpcUrl: string,
     factoryAddress: string,
+    strategyBuilderAddress: string,
     opts?: IPresetBuilderOpts
   ): Promise<OctoDefiWalletUserOpBuilder> {
     const instance = new OctoDefiWalletUserOpBuilder(
       signer,
       rpcUrl,
       factoryAddress,
+      strategyBuilderAddress,
       opts
     );
 
@@ -87,6 +90,7 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
         await instance.factory.getAddress(),
         instance.factory.interface.encodeFunctionData("createAccount", [
           await instance.signer.getAddress(),
+          strategyBuilderAddress,
           opts?.salt ? opts.salt.toString() : BigInt(0),
         ]),
       ]);
@@ -156,31 +160,22 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     }
   }
 
-  setStrategyWithInputs(
-    strategyID: bigint,
-    tactics: Array<BytesLike>,
-    inputs: Array<string | bigint>
-  ) {}
-
-  async getStorageSlots(
-    strategyID: bigint,
-    tactics: Array<string>,
-    numArgs: Array<number>
-  ): Promise<Array<BytesLike>> {
-    const storageSlots: Array<BytesLike> = [];
-
-    for (let i = 0; i < tactics.length; i++) {
-      for (let j = 0; j < numArgs[i]; j++) {
-        const storage = await this.proxy.getStorageSlot(
-          tactics[i],
-          j,
-          strategyID,
-          i
-        );
-        storageSlots.push(storage);
-      }
+  setNewStrategyBuilder(strategyBuilder: string) {
+    if (isAddress(strategyBuilder)) {
+      return this.setCallData(
+        this.proxy.interface.encodeFunctionData("setStrategyBuilder", [
+          strategyBuilder,
+        ])
+      );
     }
+  }
 
-    return storageSlots;
+  setStrategy(strategyID: bigint, tactics: Array<BytesLike>) {
+    return this.setCallData(
+      this.proxy.interface.encodeFunctionData("setStrategy", [
+        tactics,
+        strategyID,
+      ])
+    );
   }
 }

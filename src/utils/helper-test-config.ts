@@ -10,7 +10,7 @@ const provider = new JsonRpcProvider(rpcURL);
 const wallet = new Wallet(privateKey, provider) as Signer;
 export const signer: Signer = wallet;
 
-export const factoryAddress = "0x7E440987384b6e83d8044D038Af64fa6F9409A89";
+export const factoryAddress = "0xD9dAD33994fC4207838d90cC83E9F9CfCD295417";
 // export const factoryAddress = "0x49a24CC4757A9267a6422593a509F0dD768dbB53";
 export const strategyBuilderAddress =
   "0xb454B56C61E24e48A10174411748e0d09F838F99";
