@@ -1,8 +1,8 @@
-# OctoDefi Wallet TypeScript Package Documentation
+# OctoDefi Wallet TypeScript OctoDefiWalletUserOpBuilder Documentation
 
 ## Usage
 
-### Importing the Package
+### Importing the Class
 
 ```typescript
 import { OctoDefiWalletUserOpBuilder } from "octodefi-wallet";
@@ -24,7 +24,7 @@ const octoDefiWallet = await OctoDefiWalletUserOpBuilder.init(
 );
 ```
 
-### Building Transactions
+### Building UserOpteration
 
 #### Execute a Transaction
 
@@ -75,7 +75,7 @@ const setStrategyData = octoDefiWallet.setStrategy(strategyID, tactics);
 
 ### Executing Transactions
 
-After building the transaction data, you can execute the transaction using your preferred Ethereum library (such as ethers.js) to send the transaction to the Ethereum network.
+After building the UserOperation, you can execute the transaction using your preferred Bundler client to send the transaction to the Ethereum network.
 
 ## Class: OctoDefiWalletUserOpBuilder
 
@@ -157,10 +157,11 @@ After building the transaction data, you can execute the transaction using your 
 
 ```typescript
 import { ethers } from "ethers";
+import { Client } from "userop";
 import { OctoDefiWalletUserOpBuilder } from "octodefi-wallet";
 
 async function main() {
-  const rpcUrl = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID";
+  const rpcUrl = "https://api.stackup.sh/v1/node/YOUR_STACK_UP_API_KEY";
   const signer = new ethers.Wallet("YOUR_PRIVATE_KEY");
 
   const factoryAddress = "0x..."; // Address of the SmartStrategyWalletFactory contract
@@ -177,26 +178,15 @@ async function main() {
   const value = ethers.utils.parseEther("1"); // 1 ETH in wei
   const data = "0x..."; // Transaction data
 
-  const transactionData = octoDefiWallet.execute(to, value, data);
-
-  // Now you can send the transaction using ethers.js or any other Ethereum library
+  // Now you can send the UserOperation within the client
+  const client = await Client.init(rpcUrl);
   // For example:
-  const gasPrice = await octoDefiWallet.provider.getGasPrice();
-  const gasLimit = 21000; // Specify an appropriate gas limit
-  const nonce = await signer.getTransactionCount();
-  const rawTransaction = {
-    nonce: nonce,
-    gasPrice: gasPrice,
-    gasLimit: gasLimit,
-    to: octoDefiWallet.proxy.address,
-    value: 0,
-    data: transactionData,
-  };
+  const res = await client.sendUserOperation(
+    octoDefiWallet.execute(to, value, data)
+  );
 
-  const signedTransaction = await signer.signTransaction(rawTransaction);
-  const transactionResponse =
-    await octoDefiWallet.provider.sendTransaction(signedTransaction);
-  console.log("Transaction Hash:", transactionResponse.hash);
+  const env = await res.wait();
+  console.log(env);
 }
 
 main();
