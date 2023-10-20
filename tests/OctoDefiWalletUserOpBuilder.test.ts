@@ -1,34 +1,12 @@
 import { OctoDefiWalletUserOpBuilder } from "../src";
+import { OctoDefiContracts, ChainID } from "../src/constants";
 import { Client } from "userop";
-import * as config from "../src/utils/helper-test-config";
-import { JsonRpcProvider, Wallet, ethers, parseEther } from "ethers";
-import {
-  EntryPoint__factory,
-  SmartStrategyWallet__factory,
-} from "../src/typechain";
-import { UserOperationStruct } from "../src/typechain/EntryPoint";
+import * as config from "./helper-test-config";
+import { JsonRpcProvider, Wallet, parseEther } from "ethers";
+import { SmartStrategyWallet__factory } from "../src/typechain";
 
 describe("OctoDefiWalletUserOpBuilder", () => {
-  const {
-    signer,
-    rpcURL,
-    stackupRpcUrl,
-    factoryAddress,
-    strategyBuilderAddress,
-    chainID,
-    entryPointAddress,
-  } = config;
-
-  describe("builder initialize correct", () => {
-    test("builder initialized corret", async () => {
-      const builder = await OctoDefiWalletUserOpBuilder.init(
-        signer,
-        stackupRpcUrl,
-        factoryAddress,
-        strategyBuilderAddress
-      );
-    });
-  });
+  const { signer, rpcURL, stackupRpcUrl } = config;
 
   describe("test add owner", () => {
     test("add new owner without a deployed scw", async () => {
@@ -41,8 +19,8 @@ describe("OctoDefiWalletUserOpBuilder", () => {
       const builder = await OctoDefiWalletUserOpBuilder.init(
         signerWallet,
         stackupRpcUrl,
-        factoryAddress,
-        strategyBuilderAddress
+        OctoDefiContracts.Sepolia.Factory,
+        OctoDefiContracts.Sepolia.StrategyBuilder
       );
 
       const balance = await signer.provider?.getBalance(builder.getSender());
@@ -56,22 +34,21 @@ describe("OctoDefiWalletUserOpBuilder", () => {
           value: parseEther("0.005"),
         });
 
-        const resp = await tx.wait(2);
-        console.log(resp);
+        await tx.wait(2);
       }
 
       const signature = builder.getSignature();
-      console.log(signature);
 
       builder.addOwner(newOwner);
 
-      const userOp = await builder.buildOp(entryPointAddress, chainID);
-      console.log(userOp);
+      const userOp = await builder.buildOp(
+        OctoDefiContracts.Sepolia.EntryPoint,
+        ChainID.Sepolia
+      );
 
       const res = await client.sendUserOperation(builder);
 
       const env = await res.wait();
-      console.log(env);
 
       const smartContractWalletAddress = await builder.proxy.getAddress();
 
