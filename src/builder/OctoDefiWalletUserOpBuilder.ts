@@ -108,7 +108,7 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     const base = instance
       .useDefaults({
         sender: await instance.proxy.getAddress(),
-        signature: await instance.signer.signMessage(
+        signature: await DEFAULT_WALLET.signMessage(
           getBytes(keccak256("0xdead"))
         ),
       })

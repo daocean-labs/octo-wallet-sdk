@@ -14,4 +14,6 @@ npm install octo-defi
 
 The following classes you can use for the smart contract interaction:
 
+[OctoDefiWallet](./src/wallet/README.md)
+
 [OctoDefiWalletUserOpBuilder](./src/builder/README.md)
