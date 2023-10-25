@@ -5,3 +5,4 @@ export { EntryPoint__factory } from "./EntryPoint__factory";
 export { SmartStrategyWallet__factory } from "./SmartStrategyWallet__factory";
 export { SmartStrategyWalletFactory__factory } from "./SmartStrategyWalletFactory__factory";
 export { StrategyBuilder__factory } from "./StrategyBuilder__factory";
+export { Token__factory } from "./Token__factory";

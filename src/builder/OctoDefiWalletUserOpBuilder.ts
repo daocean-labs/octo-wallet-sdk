@@ -160,6 +160,24 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
     }
   }
 
+  executeTactic(
+    libAddress: string,
+    funcionSelector: BytesLike,
+    functionArgs: Array<BytesLike>
+  ) {
+    if (isAddress(libAddress)) {
+      return this.setCallData(
+        this.proxy.interface.encodeFunctionData("executeTactic", [
+          libAddress,
+          funcionSelector,
+          functionArgs,
+        ])
+      );
+    } else {
+      throw Error("OctoDefiWalletUserOpBuilder: No valid string!");
+    }
+  }
+
   setNewStrategyBuilder(strategyBuilder: string) {
     if (isAddress(strategyBuilder)) {
       return this.setCallData(

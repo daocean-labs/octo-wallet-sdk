@@ -19,8 +19,8 @@ describe("OctoDefiWalletUserOpBuilder", () => {
       const builder = await OctoDefiWalletUserOpBuilder.init(
         signerWallet,
         stackupRpcUrl,
-        OctoDefiContracts.Sepolia.Factory,
-        OctoDefiContracts.Sepolia.StrategyBuilder
+        OctoDefiContracts[ChainID.Sepolia].Factory,
+        OctoDefiContracts[ChainID.Sepolia].StrategyBuilder
       );
 
       const balance = await signer.provider?.getBalance(builder.getSender());
@@ -37,18 +37,16 @@ describe("OctoDefiWalletUserOpBuilder", () => {
         await tx.wait(2);
       }
 
-      const signature = builder.getSignature();
-
       builder.addOwner(newOwner);
 
-      const userOp = await builder.buildOp(
-        OctoDefiContracts.Sepolia.EntryPoint,
+      await builder.buildOp(
+        OctoDefiContracts[ChainID.Sepolia].EntryPoint,
         ChainID.Sepolia
       );
 
       const res = await client.sendUserOperation(builder);
 
-      const env = await res.wait();
+      await res.wait();
 
       const smartContractWalletAddress = await builder.proxy.getAddress();
 

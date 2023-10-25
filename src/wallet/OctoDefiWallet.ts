@@ -9,8 +9,13 @@ import { OctoDefiWalletUserOpBuilder } from "../builder";
 import {
   SmartStrategyWallet,
   SmartStrategyWallet__factory,
+  StrategyBuilder,
+  StrategyBuilder__factory,
 } from "../typechain";
 import { Client, IClientOpts } from "userop";
+import { OctoDefiContracts } from "../constants";
+import { Tacticts } from "../constants/tacticts";
+import { convertIntoBytes } from "../utils/convert";
 
 export class OctoDefiWallet {
   private walletAddress: string;
@@ -19,6 +24,7 @@ export class OctoDefiWallet {
   private builder: OctoDefiWalletUserOpBuilder | undefined;
   private walletContract: SmartStrategyWallet;
   private publicProvider: JsonRpcProvider;
+  private strategyBuilder: StrategyBuilder;
 
   private constructor(
     signer: ethers.Signer,
@@ -28,6 +34,7 @@ export class OctoDefiWallet {
     this.signer = signer;
     this.walletAddress = "0x";
     this.walletContract = SmartStrategyWallet__factory.connect(ZeroAddress);
+    this.strategyBuilder = StrategyBuilder__factory.connect(ZeroAddress);
     this.publicProvider = new JsonRpcProvider(rpcUrl);
     this.bundlerRpcUrl = bundlerRpcUrl;
   }
@@ -50,6 +57,11 @@ export class OctoDefiWallet {
 
     instance.walletAddress = instance.builder.getSender();
     instance.walletContract = instance.builder.proxy.connect(
+      instance.publicProvider
+    );
+
+    instance.strategyBuilder = StrategyBuilder__factory.connect(
+      strategyBuilderAddress,
       instance.publicProvider
     );
 
@@ -147,6 +159,46 @@ export class OctoDefiWallet {
       return await this.sendUserOp(this.builder.execute(to, value, "0x"));
     } else {
       throw Error("UserOperationBuilder not initialized!");
+    }
+  }
+
+  async execute(to: string, value: bigint, data: BytesLike): Promise<string> {
+    if (this.builder) {
+      return await this.sendUserOp(this.builder.execute(to, value, data));
+    } else {
+      throw Error("UserOperationBuilder not initialized!");
+    }
+  }
+
+  async executeSwapTacticWithExactAmount(
+    tokenA: string,
+    tokenB: string,
+    amountIn: bigint,
+    routerAddress: string
+  ): Promise<string> {
+    const chainId = Number((await this.publicProvider.getNetwork()).chainId);
+
+    if (chainId in OctoDefiContracts) {
+      if (this.builder) {
+        const tacticID = Tacticts[chainId].Swap;
+        const info = await this.strategyBuilder.getTacticFunction(tacticID);
+        const inputs: BytesLike[] = [];
+
+        inputs.push(convertIntoBytes(tokenA));
+        inputs.push(convertIntoBytes(tokenB));
+        inputs.push(convertIntoBytes(amountIn));
+        inputs.push(convertIntoBytes(routerAddress));
+
+        console.log(inputs);
+
+        return await this.sendUserOp(
+          this.builder.executeTactic(info[2], info[0], inputs)
+        );
+      } else {
+        throw Error("UserOperationBuilder not initialized!");
+      }
+    } else {
+      throw new Error("OctoDefiWallet: No valid network!");
     }
   }
 }
