@@ -23,7 +23,7 @@ import {
   SmartStrategyWallet__factory,
 } from "../typechain";
 import { ERC4337 } from "userop/dist/constants";
-import { hexConcat } from "@ethersproject/bytes";
+import { Bytes, hexConcat } from "@ethersproject/bytes";
 import { EOASignature } from "../middleware/signature";
 import { getGasPrice } from "../middleware/gasPrice";
 import { estimateUserOperationGas } from "../middleware/gasLimit";
@@ -193,6 +193,22 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
       this.proxy.interface.encodeFunctionData("setStrategy", [
         tactics,
         strategyID,
+      ])
+    );
+  }
+
+  setStrategyWithArguments(
+    strategyID: bigint,
+    tactics: Array<BytesLike>,
+    slots: Array<BytesLike>,
+    inputs: Array<BytesLike>
+  ) {
+    return this.setCallData(
+      this.proxy.interface.encodeFunctionData("setStrategyWithInputs", [
+        tactics,
+        strategyID,
+        slots,
+        inputs,
       ])
     );
   }

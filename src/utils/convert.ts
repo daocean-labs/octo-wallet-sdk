@@ -34,6 +34,12 @@ export function convertIntoBytes(
   }
 }
 
+export function convertArrayIntoBytesArray(
+  inputs: string[] | AddressLike[] | bigint[] | number[] | boolean[]
+): BytesLike[] {
+  return inputs.map((input) => convertIntoBytes(input));
+}
+
 export function numberToBytes4(value: number): string {
   const hexValue = value.toString(16).padStart(8, "0"); // Convert number to hexadecimal and pad with zeros to 8 characters
   return "0x" + hexValue; // Add '0x' prefix to indicate it's a hexadecimal value

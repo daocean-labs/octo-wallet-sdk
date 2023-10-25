@@ -4,6 +4,7 @@ import {
   ZeroAddress,
   JsonRpcProvider,
   isAddress,
+  AddressLike,
 } from "ethers";
 import { OctoDefiWalletUserOpBuilder } from "../builder";
 import {
@@ -96,28 +97,29 @@ export class OctoDefiWallet {
     return client;
   }
 
-  async getStorageSlots(
+  async getStorageSlot(
+    libAddress: AddressLike,
+    argumentPosition: bigint,
     strategyID: bigint,
-    tactics: Array<string>,
-    numArgs: Array<number>
-  ): Promise<Array<BytesLike>> {
-    const storageSlots: Array<BytesLike> = [];
-
-    for (let i = 0; i < tactics.length; i++) {
-      for (let j = 0; j < numArgs[i]; j++) {
-        const storage = await this.builder?.proxy.getStorageSlot(
-          tactics[i],
-          j,
-          strategyID,
-          i
-        );
-        if (storage) {
-          storageSlots.push(storage);
-        }
-      }
+    tacticPosition: bigint
+  ): Promise<BytesLike> {
+    if (!this.builder) {
+      throw Error("OctoDefiWallet: Wallet not initialized!");
     }
+    return await this.builder.proxy.getStorageSlot(
+      libAddress,
+      argumentPosition,
+      strategyID,
+      tacticPosition
+    );
+  }
 
-    return storageSlots;
+  async getStrategy(strategyID: bigint): Promise<BytesLike> {
+    const strategy = await this.walletContract.getStrategy(strategyID);
+
+    if (!strategy) throw new Error("No existing strategy with the ID");
+
+    return strategy;
   }
 
   /* ====== Wallet Interactions ======*/
@@ -199,6 +201,61 @@ export class OctoDefiWallet {
       }
     } else {
       throw new Error("OctoDefiWallet: No valid network!");
+    }
+  }
+
+  async setStrategy(
+    strategyID: bigint,
+    tactics: Array<BytesLike>
+  ): Promise<string> {
+    if (this.builder) {
+      return await this.sendUserOp(
+        this.builder.setStrategy(strategyID, tactics)
+      );
+    } else {
+      throw Error("UserOperationBuilder not initialized!");
+    }
+  }
+
+  async setStrategyWithFunctionArgs(
+    strategyID: bigint,
+    tactics: Array<BytesLike>,
+    inputs: Array<BytesLike>
+  ) {
+    if (this.builder) {
+      const slots: BytesLike[] = [];
+
+      let tacticNo = 0;
+      let i = 0;
+      while (i < inputs.length) {
+        const tacticInfo = await this.strategyBuilder.getTacticFunction(
+          tactics[tacticNo]
+        );
+
+        for (let j = 0; j < tacticInfo[1]; j++) {
+          const slot = await this.getStorageSlot(
+            tacticInfo[2],
+            BigInt(j),
+            strategyID,
+            BigInt(tacticNo)
+          );
+
+          slots.push(slot);
+          i++;
+        }
+        tacticNo++;
+      }
+
+      return this.sendUserOp(
+        this.builder.setStrategyWithArguments(
+          strategyID,
+          tactics,
+          slots,
+          inputs
+        )
+      );
+    } else {
+      throw Error("UserOperationBuilder not initialized!");
     }
   }
 }

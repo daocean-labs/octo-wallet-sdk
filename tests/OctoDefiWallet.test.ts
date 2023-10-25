@@ -4,9 +4,10 @@ import {
   ChainID,
   ERC20TokenContracts,
   OctoDefiContracts,
+  Tacticts,
 } from "../src/constants";
 import * as config from "./helper-test-config";
-import { Token__factory } from "../src/typechain";
+import { StrategyBuilder__factory, Token__factory } from "../src/typechain";
 
 const STARTING_BALANCE = parseEther("0.005");
 const STARTING_TOKEN_BALANCE = parseEther("100000");
@@ -107,5 +108,40 @@ describe("OctoDefiWallet", () => {
     const balanceDUSD = await DUSD.balanceOf(walletAddress);
 
     expect(balanceDUSD).toBeGreaterThan(0);
+  }, 70000);
+
+  test("set new strategy", async () => {
+    const tacticID = [Tacticts[ChainID.Sepolia].Swap];
+
+    const strategyID = BigInt(1);
+
+    await octoWallet.setStrategy(strategyID, tacticID);
+
+    const strategy = await octoWallet.getStrategy(strategyID);
+
+    const strategyBuilderAddress =
+      OctoDefiContracts[ChainID.Sepolia].StrategyBuilder;
+
+    const strategyBuilder = StrategyBuilder__factory.connect(
+      strategyBuilderAddress,
+      signer
+    );
+
+    console.log(walletAddress);
+
+    const tactics = await strategyBuilder.buildTacticsOutOfStrategy(strategy);
+
+    expect(tactics[0].length).toBe(1);
+  }, 70000);
+
+  test("set strategy with all arguments", async () => {
+    const tactics = [
+      Tacticts[ChainID.Sepolia].Swap,
+      Tacticts[ChainID.Sepolia].Swap,
+    ];
+
+    //TODO: Write the test with 2 swaps
+
+    const strategyID = BigInt(1);
   }, 70000);
 });
