@@ -8,6 +8,7 @@ import {
 } from "ethers";
 import { OctoDefiWalletUserOpBuilder } from "../builder";
 import {
+  IERC20Metadata__factory,
   SmartStrategyWallet,
   SmartStrategyWallet__factory,
   StrategyBuilder,
@@ -16,7 +17,7 @@ import {
 import { Client, IClientOpts } from "userop";
 import { OctoDefiContracts } from "../constants";
 import { Tacticts } from "../constants/tacticts";
-import { convertIntoBytes } from "../utils/convert";
+import { convertArrayIntoBytesArray, convertIntoBytes } from "../utils/convert";
 
 export class OctoDefiWallet {
   private walletAddress: string;
@@ -106,12 +107,19 @@ export class OctoDefiWallet {
     if (!this.builder) {
       throw Error("OctoDefiWallet: Wallet not initialized!");
     }
-    return await this.builder.proxy.getStorageSlot(
+    return await this.walletContract.getStorageSlot(
       libAddress,
       argumentPosition,
       strategyID,
       tacticPosition
     );
+  }
+
+  async getValue(storageSlot: BytesLike): Promise<BytesLike> {
+    if (!this.builder) {
+      throw Error("OctoDefiWallet: Wallet not initialized!");
+    }
+    return await this.walletContract.getValue(storageSlot);
   }
 
   async getStrategy(strategyID: bigint): Promise<BytesLike> {
@@ -159,6 +167,26 @@ export class OctoDefiWallet {
     if (this.builder) {
       if (!isAddress(to)) throw Error("TransferNativeCoin: No valid address!");
       return await this.sendUserOp(this.builder.execute(to, value, "0x"));
+    } else {
+      throw Error("UserOperationBuilder not initialized!");
+    }
+  }
+
+  async transferERC20Token(
+    tokenAddress: string,
+    to: string,
+    amount: bigint
+  ): Promise<string> {
+    if (this.builder) {
+      if (!isAddress(to)) throw Error("TransferNativeCoin: No valid address!");
+      const token = IERC20Metadata__factory.connect(ZeroAddress);
+      const functionCalldata = token.interface.encodeFunctionData("transfer", [
+        to,
+        amount,
+      ]);
+      return await this.sendUserOp(
+        this.builder.execute(tokenAddress, BigInt(0), functionCalldata)
+      );
     } else {
       throw Error("UserOperationBuilder not initialized!");
     }
@@ -220,9 +248,10 @@ export class OctoDefiWallet {
   async setStrategyWithFunctionArgs(
     strategyID: bigint,
     tactics: Array<BytesLike>,
-    inputs: Array<BytesLike>
+    inputs: Array<any>
   ) {
     if (this.builder) {
+      const inputsByte = convertArrayIntoBytesArray(inputs);
       const slots: BytesLike[] = [];
 
       let tacticNo = 0;
@@ -251,9 +280,20 @@ export class OctoDefiWallet {
           strategyID,
           tactics,
           slots,
-          inputs
+          inputsByte
         )
       );
+    } else {
+      throw Error("UserOperationBuilder not initialized!");
+    }
+  }
+
+  async executeStrategy(strategyID: bigint): Promise<string> {
+    if (this.builder) {
+      const strategy = await this.walletContract.getStrategy(strategyID);
+      if (strategy.length === 0)
+        throw Error("StrategyExecution: No Active Strategy");
+      return this.sendUserOp(this.builder.executeStrategy(strategyID));
     } else {
       throw Error("UserOperationBuilder not initialized!");
     }

@@ -212,4 +212,10 @@ export class OctoDefiWalletUserOpBuilder extends UserOperationBuilder {
       ])
     );
   }
+
+  executeStrategy(strategyID: bigint) {
+    return this.setCallData(
+      this.proxy.interface.encodeFunctionData("executeStrategy", [strategyID])
+    );
+  }
 }

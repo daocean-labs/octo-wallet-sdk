@@ -2,12 +2,14 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { EntryPoint } from "./EntryPoint";
+export type { IERC20Metadata } from "./IERC20Metadata";
 export type { SmartStrategyWallet } from "./SmartStrategyWallet";
 export type { SmartStrategyWalletFactory } from "./SmartStrategyWalletFactory";
 export type { StrategyBuilder } from "./StrategyBuilder";
 export type { Token } from "./Token";
 export * as factories from "./factories";
 export { EntryPoint__factory } from "./factories/EntryPoint__factory";
+export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { SmartStrategyWallet__factory } from "./factories/SmartStrategyWallet__factory";
 export { SmartStrategyWalletFactory__factory } from "./factories/SmartStrategyWalletFactory__factory";
 export { StrategyBuilder__factory } from "./factories/StrategyBuilder__factory";

@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export { EntryPoint__factory } from "./EntryPoint__factory";
+export { IERC20Metadata__factory } from "./IERC20Metadata__factory";
 export { SmartStrategyWallet__factory } from "./SmartStrategyWallet__factory";
 export { SmartStrategyWalletFactory__factory } from "./SmartStrategyWalletFactory__factory";
 export { StrategyBuilder__factory } from "./StrategyBuilder__factory";

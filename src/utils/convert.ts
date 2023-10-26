@@ -7,8 +7,16 @@ import {
   ParamType,
   toQuantity,
   AddressLike,
+  Result,
 } from "ethers";
 import { HexString } from "ethers/lib.commonjs/utils/data";
+
+export enum InputTypes {
+  ADDRESS = "address",
+  STRING = "string",
+  BOOLEAN = "bool",
+  UINT256 = "uint256",
+}
 
 export function convertIntoBytes(
   input: string | AddressLike | bigint | number | boolean
@@ -27,6 +35,30 @@ export function convertIntoBytes(
   } else if (typeof input === "boolean") {
     // If data is a boolean, encode it as 'bool' type
     return abiCoder.encode(["bool"], [input]);
+  } else {
+    throw new Error(
+      "Invalid input type. Supported types are string, Ethereum address, bigint, number, and boolean."
+    );
+  }
+}
+
+export function convertFromBytes(
+  input: BytesLike,
+  type: InputTypes
+): string | AddressLike | bigint | number | boolean {
+  const abiCoder = AbiCoder.defaultAbiCoder();
+
+  if (type === InputTypes.ADDRESS) {
+    return abiCoder.decode(["address"], input)[0];
+  }
+  if (type === InputTypes.UINT256) {
+    return abiCoder.decode(["uint256"], input)[0];
+  }
+  if (type === InputTypes.STRING) {
+    return abiCoder.decode(["string"], input)[0];
+  }
+  if (type === InputTypes.BOOLEAN) {
+    return abiCoder.decode(["bool"], input)[0];
   } else {
     throw new Error(
       "Invalid input type. Supported types are string, Ethereum address, bigint, number, and boolean."
