@@ -4,6 +4,7 @@ export interface ContractLib {
 
 export const ChainID = {
   Sepolia: 11155111,
+  Daocean: 1337,
 };
 
 export const OctoDefiContracts: ContractLib = {
@@ -12,6 +13,17 @@ export const OctoDefiContracts: ContractLib = {
     EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
     StrategyBuilder: "0xb454B56C61E24e48A10174411748e0d09F838F99",
     UniswapV2Router: "0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008",
+  },
+};
+
+export const DiamondWalletContracts: ContractLib = {
+  11155111: {
+    EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+    Factory: "0xF35eEdE5F05913f04CE2E55ACd78DFB00d61906B",
+  },
+  1337: {
+    EntryPoint: "0xE815f2aD238B218E6becb93d846EA8FF90eDB39C",
+    Factory: "0x1dc5f71123152fF7e1eBA55bFe25cb1936dF9d61",
   },
 };
 

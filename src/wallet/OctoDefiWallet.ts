@@ -137,6 +137,7 @@ export class OctoDefiWallet {
   ): Promise<string> {
     const client = await this.getBundlerClient();
     try {
+      console.log(builder.getOp());
       const res = await client.sendUserOperation(builder);
       const env = await res.wait();
 
