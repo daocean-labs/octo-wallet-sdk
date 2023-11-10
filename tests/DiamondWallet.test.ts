@@ -2,7 +2,7 @@ import { ZeroAddress, parseEther } from "ethers";
 import { DiamondWallet } from "../src";
 import * as config from "./helper-test-config";
 
-const STARTING_BALANCE = parseEther("0.005");
+const STARTING_BALANCE = parseEther("0.10");
 
 describe("DiamondWallet", () => {
   let wallet: DiamondWallet;
@@ -33,11 +33,39 @@ describe("DiamondWallet", () => {
     }
   }, 70000);
 
-  test("wallet show a wallet address", () => {
-    walletAddress = wallet.getWalletAddress();
-    console.log(walletAddress);
-    expect(walletAddress).not.toBe(ZeroAddress);
-  }, 70000);
+  describe("wallet information test", () => {
+    let counter = 0;
+    beforeEach(async () => {
+      const deployed = wallet.getDeploymentStatus();
+
+      if (!deployed) {
+        const address = await signer.getAddress();
+        await wallet.execute(address, parseEther("0.001"), "0x");
+        counter++;
+        console.log(counter);
+      }
+    }, 70000);
+
+    test("wallet return the correct facetaddresses", async () => {
+      const facetAddresses = await wallet.getFacetAddresses();
+
+      expect(facetAddresses.length).toBe(4);
+    });
+
+    test("wallet show a wallet address", () => {
+      walletAddress = wallet.getWalletAddress();
+      console.log(walletAddress);
+      expect(walletAddress).not.toBe(ZeroAddress);
+    });
+
+    test("wallet return the correct owner address", async () => {
+      const signerAddress = await signer.getAddress();
+
+      const owner = await wallet.getWalletOwner();
+
+      expect(owner).toBe(signerAddress);
+    });
+  });
 
   test("send ether to a recipient address", async () => {
     const address = await signer.getAddress();
