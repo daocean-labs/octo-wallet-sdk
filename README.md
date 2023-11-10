@@ -7,7 +7,7 @@ The Diamond Wallet TypeScript package provides a set of classes and functions fo
 For the package installation run the following command:
 
 ```
-npm install octo-defi
+npm i diamond-wallet-js
 ```
 
 ## Classes
