@@ -55,7 +55,7 @@ export class DiamondWallet {
       signer,
       bundler,
       contracts.Factory,
-      { entryPoint: entryPoint }
+      { entryPoint: entryPoint, salt: salt }
     );
 
     instance.walletAddress = instance.userOPBuilder.getSender();
@@ -100,6 +100,10 @@ export class DiamondWallet {
 
   getFunctions(): Array<BytesLike> {
     return this.functions;
+  }
+
+  getActiveSigner(): ethers.Signer {
+    return this.signer;
   }
 
   /* ====== Wallet Interactions ======*/

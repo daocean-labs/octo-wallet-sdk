@@ -6,9 +6,6 @@ export type { DiamondWalletFactory } from "./DiamondWalletFactory";
 export type { EntryPoint } from "./EntryPoint";
 export type { IERC20Metadata } from "./IERC20Metadata";
 export type { SmartContractWalletFacet } from "./SmartContractWalletFacet";
-export type { SmartStrategyWallet } from "./SmartStrategyWallet";
-export type { SmartStrategyWalletFactory } from "./SmartStrategyWalletFactory";
-export type { StrategyBuilder } from "./StrategyBuilder";
 export type { Token } from "./Token";
 export * as factories from "./factories";
 export { DiamondLoupeFacet__factory } from "./factories/DiamondLoupeFacet__factory";
@@ -16,7 +13,4 @@ export { DiamondWalletFactory__factory } from "./factories/DiamondWalletFactory_
 export { EntryPoint__factory } from "./factories/EntryPoint__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { SmartContractWalletFacet__factory } from "./factories/SmartContractWalletFacet__factory";
-export { SmartStrategyWallet__factory } from "./factories/SmartStrategyWallet__factory";
-export { SmartStrategyWalletFactory__factory } from "./factories/SmartStrategyWalletFactory__factory";
-export { StrategyBuilder__factory } from "./factories/StrategyBuilder__factory";
 export { Token__factory } from "./factories/Token__factory";

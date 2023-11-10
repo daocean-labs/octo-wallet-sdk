@@ -6,7 +6,4 @@ export { DiamondWalletFactory__factory } from "./DiamondWalletFactory__factory";
 export { EntryPoint__factory } from "./EntryPoint__factory";
 export { IERC20Metadata__factory } from "./IERC20Metadata__factory";
 export { SmartContractWalletFacet__factory } from "./SmartContractWalletFacet__factory";
-export { SmartStrategyWallet__factory } from "./SmartStrategyWallet__factory";
-export { SmartStrategyWalletFactory__factory } from "./SmartStrategyWalletFactory__factory";
-export { StrategyBuilder__factory } from "./StrategyBuilder__factory";
 export { Token__factory } from "./Token__factory";

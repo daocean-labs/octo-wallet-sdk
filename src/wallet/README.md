@@ -1,108 +1,72 @@
-# OctoDefiWallet Typescript Wallet Documentation
+# DiamondWallet Documentation
 
-The `OctoDefiWallet` class is part of the OctoDefi package, providing an interface to interact with a Smart Strategy Wallet on an EVM chain. This document outlines the usage, functionalities, and interactions provided by this class.
+## Overview
+
+The `DiamondWallet` class is designed to interact with a smart contract wallet designed with the ERC4337 and ERC2535 standards. It provides functionalities for initializing, accessing wallet information, and executing operations on the diamond contract. This documentation outlines the key components, methods, and usage patterns of the `DiamondWallet` class.
+
+## Class Structure
+
+### Properties
+
+- **walletAddress**: The address of the diamond wallet.
+- **signer**: An Ethereum signer used for transaction signing.
+- **publicProvider**: An instance of `JsonRpcProvider` connected to the public Ethereum network.
+- **userOPBuilder**: An instance of `DiamondWalletUserOpBuilder` for building user operations.
+- **client**: An instance of `Client` for interacting with a user operation bundler.
+- **functions**: An array of Ethereum function selectors.
+- **facets**: An array of facet addresses associated with the diamond wallet.
+- **diamondLoupe**: An instance of `DiamondLoupeFacet` for interacting with diamond-specific functions.
+
+### Static Method
+
+- **public static async init(signer: ethers.Signer, bundlerRpcUrl: string, rpcUrl: string, salt?: bigint)**: Initializes a new `DiamondWallet` instance. It connects to the Ethereum network, retrieves necessary contract addresses, and sets up the user operation builder.
+
+## Getter Functions
+
+- **getWalletAddress(): string**: Retrieves the wallet address.
+- **getUserOpBuilder(): DiamondWalletUserOpBuilder | null**: Retrieves the user operation builder instance.
+- **getClient(): Client | null**: Retrieves the client instance for interacting with the bundler.
+- **getFacetAddresses(): Array<string>**: Retrieves an array of facet addresses associated with the diamond wallet.
+- **getFunctions(): Array<BytesLike>**: Retrieves an array of Ethereum function selectors.
+- **getActiveSigner(): ethers.Signer**: Retrieves the active Ethereum signer.
+
+## Core Facet Interactions
+
+- **async execute(to: string, value: bigint, data: BytesLike): Promise<UserOperationEventEvent | null>**: Executes a core facet operation on the diamond wallet, sending a user operation with the specified parameters.
 
 ## Usage
 
-### Importing the Class
+1. **Initialization**:
 
-```javascript
-import { OctoDefiWallet } from "octodefi-package";
-```
+   ```javascript
+   const signer = ...; // Initialize an Ethereum signer
+   const bundlerRpcUrl = '...'; // URL of the user operation bundler
+   const rpcUrl = '...'; // URL of the public Ethereum network
+   const diamondWallet = await DiamondWallet.init(signer, bundlerRpcUrl, rpcUrl);
+   ```
 
-### Initializing OctoDefiWallet
+2. **Accessing Information**:
 
-To initialize the `OctoDefiWallet` class, use the `init` method:
+   ```javascript
+   const walletAddress = diamondWallet.getWalletAddress();
+   const userOPBuilder = diamondWallet.getUserOpBuilder();
+   const client = diamondWallet.getClient();
+   const facetAddresses = diamondWallet.getFacetAddresses();
+   const functions = diamondWallet.getFunctions();
+   const activeSigner = diamondWallet.getActiveSigner();
+   ```
 
-```javascript
-const signer = ... // ethers.Signer instance;
-const bundlerRpcUrl = 'https://bundler-rpc-url.com';
-const rpcUrl = 'https://ethereum-rpc-url.com';
-const factoryAddress = '0xFactoryAddress';
-const strategyBuilderAddress = '0xStrategyBuilderAddress';
+3. **Executing Operations**:
+   ```javascript
+   const to = "0x..."; // Target address for the operation
+   const value = BigInt("1000000000000000000"); // Value in Wei
+   const data = "0x..."; // Encoded function data
+   const result = await diamondWallet.execute(to, value, data);
+   if (result) {
+     console.log("Operation successful:", result);
+   } else {
+     console.error("Operation failed.");
+   }
+   ```
 
-const octoDefiWallet = await OctoDefiWallet.init(
-  signer,
-  bundlerRpcUrl,
-  rpcUrl,
-  factoryAddress,
-  strategyBuilderAddress
-);
-```
-
-### Getter Functions
-
-- **Get Wallet Address:**
-
-  ```javascript
-  const walletAddress = octoDefiWallet.getWalletAddress();
-  ```
-
-- **Get User Operation Builder:**
-
-  ```javascript
-  const builder = octoDefiWallet.getBuilder();
-  ```
-
-- **Get Active Signer:**
-
-  ```javascript
-  const activeSigner = octoDefiWallet.getActiveSigner();
-  ```
-
-- **Get Wallet Contract:**
-  ```javascript
-  const walletContract = octoDefiWallet.getWalletContract();
-  ```
-
-### Wallet Interactions
-
-- **Add New Owner:**
-
-  ```javascript
-  const ownerAddress = "0xNewOwnerAddress";
-  const transactionHash = await octoDefiWallet.addNewOwner(ownerAddress);
-  ```
-
-- **Remove Owner:**
-
-  ```javascript
-  const ownerAddress = "0xOwnerAddressToRemove";
-  const transactionHash = await octoDefiWallet.removeOwner(ownerAddress);
-  ```
-
-- **Transfer Native Coin:**
-  ```javascript
-  const toAddress = "0xRecipientAddress";
-  const value = BigInt(1000000000000000000); // 1 ETH in wei
-  const transactionHash = await octoDefiWallet.transferNativeCoin(
-    toAddress,
-    value
-  );
-  ```
-
-### Additional Functions
-
-- **Get Storage Slots:**
-  ```javascript
-  const strategyID = BigInt(123);
-  const tactics = ["0x45129000", "0x4512932"]; // Array of tactic bytes store in the strategy builder
-  const numArgs = [2, 3]; // Array of numbers of arguments for each tactic
-  const storageSlots = await octoDefiWallet.getStorageSlots(
-    strategyID,
-    tactics,
-    numArgs
-  );
-  ```
-
-## Exception Handling
-
-The class may throw errors in case of invalid inputs or uninitialized state. Please handle exceptions appropriately to ensure the smooth operation of your application.
-
-## Notes
-
-- Ensure proper error handling and validation for all user inputs.
-- Make sure to handle asynchronous operations using `async/await` or `Promise.then()`.
-- Refer to the official Ethereum and OctoDefi documentation for more details on specific functions and parameters.
-
-For more detailed information, please refer to the source code and inline comments within the class.
+Note: Replace placeholder values (`'...'`, `0x...`) with actual values relevant to your use case. Ensure that you have the necessary dependencies and configurations set up before using the `DiamondWallet` class.
