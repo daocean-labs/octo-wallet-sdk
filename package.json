@@ -1,6 +1,6 @@
 {
-  "name": "octo-defi",
-  "version": "0.0.7",
+  "name": "diamond-wallet-js",
+  "version": "0.0.1",
   "description": "",
   "types": "./dist/index.d.ts",
   "main": "dist/index.js",
