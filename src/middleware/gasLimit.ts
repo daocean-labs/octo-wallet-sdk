@@ -14,6 +14,10 @@ interface GasEstimate {
 
 export const estimateUserOperationGas = (provider: BundlerJsonRpcProvider): UserOperationMiddlewareFn => async (ctx) => {
 
+    //set default
+    ctx.op.callGasLimit = 10e6
+    ctx.op.verificationGasLimit = 10e6
+
     const est = await provider.send("eth_estimateUserOperationGas", [OpToJSON(ctx.op), ctx.entryPoint])
 
     ctx.op.preVerificationGas = est.preVerificationGas;

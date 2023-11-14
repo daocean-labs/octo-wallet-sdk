@@ -2,7 +2,7 @@ import { ZeroAddress, parseEther } from "ethers";
 import { DiamondWallet } from "../src";
 import * as config from "./helper-test-config";
 
-const STARTING_BALANCE = parseEther("0.10");
+const STARTING_BALANCE = parseEther("1.0");
 
 describe("DiamondWallet", () => {
   let wallet: DiamondWallet;
@@ -21,7 +21,7 @@ describe("DiamondWallet", () => {
     const balance = await signer.provider?.getBalance(walletAddress);
 
     if (
-      (typeof balance == "bigint" && balance == BigInt(0)) ||
+      (typeof balance == "bigint" && balance <= parseEther('1.0')) ||
       typeof balance == "undefined"
     ) {
       const tx = await signer.sendTransaction({

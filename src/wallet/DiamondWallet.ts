@@ -60,12 +60,16 @@ export class DiamondWallet {
 
     const contracts = DiamondWalletContracts[Number(chainId)];
 
+
+    console.log("Contracts:")
+    console.log(contracts)
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
 
     const builder = await DiamondWalletUserOpBuilder.init(
       signer,
       bundler,
+      publicProvider,
       contracts.Factory,
       { entryPoint: entryPoint, salt: opts?.salt }
     );
@@ -139,7 +143,7 @@ export class DiamondWallet {
     builder: DiamondWalletUserOpBuilder
   ): Promise<UserOperationEventEvent | null> {
     try {
-      console.log(builder.getOp());
+      
       const res = await this.client.sendUserOperation(builder);
       const env = await res.wait();
 
