@@ -3,18 +3,18 @@
 /* eslint-disable */
 export type { DiamondCutFacet } from "./DiamondCutFacet";
 export type { DiamondLoupeFacet } from "./DiamondLoupeFacet";
-export type { DiamondWalletFactory } from "./DiamondWalletFactory";
 export type { EntryPoint } from "./EntryPoint";
 export type { IERC20Metadata } from "./IERC20Metadata";
+export type { OctoWalletFactory } from "./OctoWalletFactory";
 export type { OwnershipFacet } from "./OwnershipFacet";
 export type { SmartContractWalletFacet } from "./SmartContractWalletFacet";
 export type { Token } from "./Token";
 export * as factories from "./factories";
 export { DiamondCutFacet__factory } from "./factories/DiamondCutFacet__factory";
 export { DiamondLoupeFacet__factory } from "./factories/DiamondLoupeFacet__factory";
-export { DiamondWalletFactory__factory } from "./factories/DiamondWalletFactory__factory";
 export { EntryPoint__factory } from "./factories/EntryPoint__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
+export { OctoWalletFactory__factory } from "./factories/OctoWalletFactory__factory";
 export { OwnershipFacet__factory } from "./factories/OwnershipFacet__factory";
 export { SmartContractWalletFacet__factory } from "./factories/SmartContractWalletFacet__factory";
 export { Token__factory } from "./factories/Token__factory";

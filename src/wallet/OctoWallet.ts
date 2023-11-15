@@ -5,7 +5,7 @@ import {
   ethers,
   isAddress,
 } from "ethers";
-import { BundlerJsonRpcProvider, Client } from "userop";
+import { BundlerJsonRpcProvider } from "userop";
 import {
   DiamondLoupeFacet__factory,
   SmartContractWalletFacet__factory,
@@ -14,7 +14,6 @@ import {
 } from "../typechain";
 import { WalletUserOpBuilder } from "../builder";
 import { DiamondWalletContracts } from "../constants";
-import { UserOperationEventEvent } from "userop/dist/typechain/EntryPoint";
 import { IDiamondLoupe } from "../typechain/DiamondLoupeFacet";
 import { IDiamond } from "../typechain/DiamondCutFacet";
 import { OctoClient } from "../client/OctoClient";

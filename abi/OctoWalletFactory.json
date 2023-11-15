@@ -4,7 +4,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "diamondWalletInit",
+          "name": "octoWalletInit",
           "type": "address"
         },
         {
@@ -74,10 +74,10 @@
           "type": "uint256"
         }
       ],
-      "name": "createDiamondWallet",
+      "name": "createWallet",
       "outputs": [
         {
-          "internalType": "contract DiamondWallet",
+          "internalType": "contract OctoWallet",
           "name": "",
           "type": "address"
         }
@@ -123,7 +123,7 @@
           "type": "address"
         }
       ],
-      "name": "getDiamondWalletArgs",
+      "name": "getOctoWalletArgs",
       "outputs": [
         {
           "components": [
@@ -153,7 +153,7 @@
               "type": "bytes"
             }
           ],
-          "internalType": "struct DiamondArgs",
+          "internalType": "struct OctoWalletArgs",
           "name": "",
           "type": "tuple"
         }

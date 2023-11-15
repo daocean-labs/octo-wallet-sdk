@@ -14,10 +14,7 @@ import {
 } from "userop";
 import { ERC4337 } from "userop/dist/constants";
 import { EntryPoint, EntryPoint__factory } from "../typechain";
-import {
-  DiamondWalletFactory,
-  DiamondWalletFactory__factory,
-} from "../typechain";
+import { OctoWalletFactory, OctoWalletFactory__factory } from "../typechain";
 import {
   EOASignature,
   estimateUserOperationGas,
@@ -32,7 +29,7 @@ const DEFAULT_WALLET = new Wallet(DEFAULT_PRIVATE_KEY);
 export class WalletUserOpBuilder extends UserOperationBuilder {
   private signer: ethers.Signer;
   private entryPoint: EntryPoint;
-  private factory: DiamondWalletFactory;
+  private factory: OctoWalletFactory;
   private initCode: string;
   private walletAddress: string;
   private bundler: BundlerJsonRpcProvider;
@@ -59,7 +56,7 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
     this.publicProvider = publicProvider;
     this.signer = signer;
 
-    this.factory = DiamondWalletFactory__factory.connect(factoryAddress);
+    this.factory = OctoWalletFactory__factory.connect(factoryAddress);
   }
 
   private resolveAccount: UserOperationMiddlewareFn = async (ctx) => {
@@ -85,7 +82,7 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
     try {
       instance.initCode = hexConcat([
         await instance.factory.getAddress(),
-        instance.factory.interface.encodeFunctionData("createDiamondWallet", [
+        instance.factory.interface.encodeFunctionData("createWallet", [
           await instance.signer.getAddress(),
           opts?.salt ? opts.salt.toString() : BigInt(0),
         ]),

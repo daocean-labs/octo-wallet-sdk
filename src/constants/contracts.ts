@@ -14,7 +14,7 @@ export const DiamondWalletContracts: ContractLib = {
   },
   1337: {
     EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-    Factory: "0x9Bcb695Ea0BBeC9f35417A6B36Bd8C936dafdD20",
+    Factory: "0xD52d8bb7Ec439DAA364a3b6517005EeEc9324B06",
   },
 };
 
