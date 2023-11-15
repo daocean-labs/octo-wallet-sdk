@@ -12,31 +12,32 @@ import {
   OwnershipFacet__factory,
   DiamondCutFacet__factory,
 } from "../typechain";
-import { DiamondWalletUserOpBuilder } from "../builder";
-import { ChainID, DiamondWalletContracts } from "../constants";
+import { WalletUserOpBuilder } from "../builder";
+import { DiamondWalletContracts } from "../constants";
 import { UserOperationEventEvent } from "userop/dist/typechain/EntryPoint";
 import { IDiamondLoupe } from "../typechain/DiamondLoupeFacet";
 import { IDiamond } from "../typechain/DiamondCutFacet";
+import { OctoClient } from "../client/OctoClient";
 
-export interface IDiomandWalletOpts {
+export interface IOctoWallet {
   walletAddress?: string;
   salt?: bigint;
 }
 
-export class DiamondWallet {
+export class OctoWallet {
   private walletAddress: string;
   private signer: ethers.Signer;
   private publicProvider: JsonRpcProvider;
-  private userOPBuilder: DiamondWalletUserOpBuilder;
-  private client: Client;
+  private userOPBuilder: WalletUserOpBuilder;
+  private client: OctoClient;
   private functions: Array<BytesLike>;
   private isDeployed: boolean;
 
   private constructor(
     signer: ethers.Signer,
     publicProvider: JsonRpcProvider,
-    client: Client,
-    builder: DiamondWalletUserOpBuilder
+    client: OctoClient,
+    builder: WalletUserOpBuilder
   ) {
     this.publicProvider = publicProvider;
 
@@ -52,7 +53,7 @@ export class DiamondWallet {
     signer: ethers.Signer,
     bundlerRpcUrl: string,
     rpcUrl: string,
-    opts?: IDiomandWalletOpts
+    opts?: IOctoWallet
   ) {
     const publicProvider = new JsonRpcProvider(rpcUrl);
 
@@ -60,13 +61,10 @@ export class DiamondWallet {
 
     const contracts = DiamondWalletContracts[Number(chainId)];
 
-
-    console.log("Contracts:")
-    console.log(contracts)
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
 
-    const builder = await DiamondWalletUserOpBuilder.init(
+    const builder = await WalletUserOpBuilder.init(
       signer,
       bundler,
       publicProvider,
@@ -74,9 +72,9 @@ export class DiamondWallet {
       { entryPoint: entryPoint, salt: opts?.salt }
     );
 
-    const client = await Client.init(bundlerRpcUrl);
+    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl);
 
-    const instance = new DiamondWallet(signer, publicProvider, client, builder);
+    const instance = new OctoWallet(signer, publicProvider, client, builder);
 
     instance.walletAddress = instance.userOPBuilder.getSender();
 
@@ -95,11 +93,11 @@ export class DiamondWallet {
     return this.walletAddress;
   }
 
-  getUserOpBuilder(): DiamondWalletUserOpBuilder | null {
+  getUserOpBuilder(): WalletUserOpBuilder | null {
     return this.userOPBuilder;
   }
 
-  getClient(): Client | null {
+  getClient(): OctoClient | null {
     return this.client;
   }
 
@@ -139,11 +137,8 @@ export class DiamondWallet {
 
   /* ====== Wallet Interactions ======*/
 
-  private async sendUserOp(
-    builder: DiamondWalletUserOpBuilder
-  ): Promise<UserOperationEventEvent | null> {
+  private async sendUserOp(builder: WalletUserOpBuilder) {
     try {
-      
       const res = await this.client.sendUserOperation(builder);
       const env = await res.wait();
 
@@ -156,11 +151,7 @@ export class DiamondWallet {
 
   /* ====== Core Facet Interactions ====== */
 
-  async execute(
-    dest: string,
-    value: bigint,
-    data: BytesLike
-  ): Promise<UserOperationEventEvent | null> {
+  async execute(dest: string, value: bigint, data: BytesLike) {
     if (!isAddress(dest))
       throw Error(`Destintation ${dest} is not a valid evm address`);
     const intrf = SmartContractWalletFacet__factory.connect(this.walletAddress);
@@ -179,7 +170,7 @@ export class DiamondWallet {
     dests: Array<string>,
     values: Array<bigint>,
     datas: Array<BytesLike>
-  ): Promise<UserOperationEventEvent | null> {
+  ) {
     dests.forEach((dest) => {
       if (!isAddress(dest))
         throw Error(`Destintation ${dest} is not a valid evm address`);
@@ -198,7 +189,7 @@ export class DiamondWallet {
     facetCuts: Array<IDiamond.FacetCutStruct>,
     init: string,
     initData: BytesLike
-  ): Promise<UserOperationEventEvent | null> {
+  ) {
     if (!isAddress(init))
       throw Error(`Init ${init} is not a valid evm address`);
 
@@ -217,9 +208,7 @@ export class DiamondWallet {
     );
   }
 
-  async transferOwnership(
-    newOwner: string
-  ): Promise<UserOperationEventEvent | null> {
+  async transferOwnership(newOwner: string) {
     if (!isAddress(newOwner))
       throw Error(`New owner ${newOwner} is not a valid evm address`);
 

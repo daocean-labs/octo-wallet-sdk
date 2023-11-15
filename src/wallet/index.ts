@@ -1,1 +1,1 @@
-export * from "./DiamondWallet";
+export * from "./OctoWallet";

@@ -1,27 +1,27 @@
-import { ZeroAddress, parseEther } from "ethers";
-import { DiamondWallet } from "../src";
+import { JsonRpcProvider, ZeroAddress, parseEther } from "ethers";
+import { OctoWallet } from "../src";
 import * as config from "./helper-test-config";
 
 const STARTING_BALANCE = parseEther("1.0");
 
 describe("DiamondWallet", () => {
-  let wallet: DiamondWallet;
+  let wallet: OctoWallet;
   let walletAddress: string;
+  let provider: JsonRpcProvider;
 
-  //   const { signer } = config;
-  //   const rpcURL = "http://defi-etf.com:8545/";
-  //   const stackupRpcUrl = "http://defi-etf.com:4337/";
   const { signer, rpcURL, stackupRpcUrl } = config;
 
   beforeEach(async () => {
-    wallet = await DiamondWallet.init(signer, stackupRpcUrl, rpcURL);
+    provider = new JsonRpcProvider(rpcURL);
+
+    wallet = await OctoWallet.init(signer, stackupRpcUrl, rpcURL);
 
     walletAddress = wallet.getWalletAddress();
 
     const balance = await signer.provider?.getBalance(walletAddress);
 
     if (
-      (typeof balance == "bigint" && balance <= parseEther('1.0')) ||
+      (typeof balance == "bigint" && balance <= parseEther("1.0")) ||
       typeof balance == "undefined"
     ) {
       const tx = await signer.sendTransaction({
@@ -69,8 +69,18 @@ describe("DiamondWallet", () => {
 
   test("send ether to a recipient address", async () => {
     const address = await signer.getAddress();
-    const ev = await wallet.execute(address, parseEther("0.001"), "0x");
 
-    console.log(ev);
+    const balanceBefore = await provider.getBalance(address);
+
+    const res = await wallet.execute(address, parseEther("0.001"), "0x");
+
+    const balanceAfter = await provider.getBalance(address);
+
+    expect(balanceAfter).toBeGreaterThan(balanceBefore);
+
+    if (res) {
+      console.log(res);
+      expect(res.success).toBeTruthy();
+    }
   }, 70000);
 });

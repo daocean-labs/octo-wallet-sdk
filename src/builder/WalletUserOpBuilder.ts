@@ -1,4 +1,11 @@
-import { ZeroAddress, ethers, Wallet, getBytes, keccak256,  JsonRpcProvider } from "ethers";
+import {
+  ZeroAddress,
+  ethers,
+  Wallet,
+  getBytes,
+  keccak256,
+  JsonRpcProvider,
+} from "ethers";
 import {
   BundlerJsonRpcProvider,
   IPresetBuilderOpts,
@@ -6,7 +13,7 @@ import {
   UserOperationMiddlewareFn,
 } from "userop";
 import { ERC4337 } from "userop/dist/constants";
-import { EntryPoint,EntryPoint__factory } from "../typechain";
+import { EntryPoint, EntryPoint__factory } from "../typechain";
 import {
   DiamondWalletFactory,
   DiamondWalletFactory__factory,
@@ -22,14 +29,14 @@ const DEFAULT_PRIVATE_KEY =
   "0x0123456789012345678901234567890123456789012345678901234567890123"; // Replace with your private key
 const DEFAULT_WALLET = new Wallet(DEFAULT_PRIVATE_KEY);
 
-export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
+export class WalletUserOpBuilder extends UserOperationBuilder {
   private signer: ethers.Signer;
   private entryPoint: EntryPoint;
   private factory: DiamondWalletFactory;
   private initCode: string;
   private walletAddress: string;
   private bundler: BundlerJsonRpcProvider;
-  private publicProvider: JsonRpcProvider
+  private publicProvider: JsonRpcProvider;
 
   private constructor(
     signer: ethers.Signer,
@@ -49,9 +56,9 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
     );
 
     this.bundler = bundler;
-    this.publicProvider = publicProvider
+    this.publicProvider = publicProvider;
     this.signer = signer;
-    
+
     this.factory = DiamondWalletFactory__factory.connect(factoryAddress);
   }
 
@@ -67,7 +74,7 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
     factoryAddress: string,
     opts?: IPresetBuilderOpts
   ) {
-    const instance = new DiamondWalletUserOpBuilder(
+    const instance = new WalletUserOpBuilder(
       signer,
       bundler,
       publicProvider,
@@ -84,18 +91,18 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
         ]),
       ]);
 
-      await instance.entryPoint.getFunction('getSenderAddress').staticCall(instance.initCode);
+      await instance.entryPoint
+        .getFunction("getSenderAddress")
+        .staticCall(instance.initCode);
 
       throw new Error("getSenderAddress: unexpected result");
     } catch (error: any) {
-      console.log(error)
       const addr = error?.revert?.args[0];
       if (!addr) throw error;
 
       instance.walletAddress = addr;
     }
 
-    console.log(instance.initCode);
     const base = instance
       .useDefaults({
         sender: instance.walletAddress,
