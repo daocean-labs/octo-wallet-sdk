@@ -1,4 +1,11 @@
-import { ZeroAddress, ethers, Wallet, getBytes, keccak256 } from "ethers";
+import {
+  ZeroAddress,
+  ethers,
+  Wallet,
+  getBytes,
+  keccak256,
+  JsonRpcProvider,
+} from "ethers";
 import {
   BundlerJsonRpcProvider,
   IPresetBuilderOpts,
@@ -6,7 +13,7 @@ import {
   UserOperationMiddlewareFn,
 } from "userop";
 import { ERC4337 } from "userop/dist/constants";
-import { EntryPoint, EntryPoint__factory } from "userop/dist/typechain";
+import { EntryPoint, EntryPoint__factory } from "../typechain";
 import {
   DiamondWalletFactory,
   DiamondWalletFactory__factory,
@@ -22,17 +29,19 @@ const DEFAULT_PRIVATE_KEY =
   "0x0123456789012345678901234567890123456789012345678901234567890123"; // Replace with your private key
 const DEFAULT_WALLET = new Wallet(DEFAULT_PRIVATE_KEY);
 
-export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
+export class WalletUserOpBuilder extends UserOperationBuilder {
   private signer: ethers.Signer;
   private entryPoint: EntryPoint;
   private factory: DiamondWalletFactory;
   private initCode: string;
   private walletAddress: string;
   private bundler: BundlerJsonRpcProvider;
+  private publicProvider: JsonRpcProvider;
 
   private constructor(
     signer: ethers.Signer,
     bundler: BundlerJsonRpcProvider,
+    publicProvider: JsonRpcProvider,
     factoryAddress: string,
     opts?: IPresetBuilderOpts
   ) {
@@ -43,29 +52,32 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
 
     this.entryPoint = EntryPoint__factory.connect(
       opts?.entryPoint || ERC4337.EntryPoint,
-      bundler
+      publicProvider
     );
 
     this.bundler = bundler;
+    this.publicProvider = publicProvider;
     this.signer = signer;
-    console.log(factoryAddress);
+
     this.factory = DiamondWalletFactory__factory.connect(factoryAddress);
   }
 
   private resolveAccount: UserOperationMiddlewareFn = async (ctx) => {
     ctx.op.nonce = await this.entryPoint.getNonce(ctx.op.sender, 0);
-    ctx.op.initCode = ctx.op.nonce.eq(0) ? this.initCode : "0x";
+    ctx.op.initCode = ctx.op.nonce == BigInt(0) ? this.initCode : "0x";
   };
 
   public static async init(
     signer: ethers.Signer,
     bundler: BundlerJsonRpcProvider,
+    publicProvider: JsonRpcProvider,
     factoryAddress: string,
     opts?: IPresetBuilderOpts
   ) {
-    const instance = new DiamondWalletUserOpBuilder(
+    const instance = new WalletUserOpBuilder(
       signer,
       bundler,
+      publicProvider,
       factoryAddress,
       opts
     );
@@ -79,17 +91,18 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
         ]),
       ]);
 
-      await instance.entryPoint.callStatic.getSenderAddress(instance.initCode);
+      await instance.entryPoint
+        .getFunction("getSenderAddress")
+        .staticCall(instance.initCode);
 
       throw new Error("getSenderAddress: unexpected result");
     } catch (error: any) {
-      const addr = error?.errorArgs?.sender;
+      const addr = error?.revert?.args[0];
       if (!addr) throw error;
 
       instance.walletAddress = addr;
     }
 
-    console.log(instance.initCode);
     const base = instance
       .useDefaults({
         sender: instance.walletAddress,
@@ -98,7 +111,7 @@ export class DiamondWalletUserOpBuilder extends UserOperationBuilder {
         ),
       })
       .useMiddleware(instance.resolveAccount)
-      .useMiddleware(getGasPrice(instance.bundler))
+      .useMiddleware(getGasPrice(instance.publicProvider))
       .useMiddleware(estimateUserOperationGas(instance.bundler));
 
     //TODO: Implement PaymasterMiddleware

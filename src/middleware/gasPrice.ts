@@ -2,7 +2,7 @@ import { JsonRpcProvider, ethers } from "ethers";
 import { BundlerJsonRpcProvider, UserOperationMiddlewareFn } from "userop";
 
 
-const eip1559GasPrice = async (provider: BundlerJsonRpcProvider) => {
+const eip1559GasPrice = async (provider: JsonRpcProvider) => {
     const [fee, block] = await Promise.all([
         provider.send("eth_maxPriorityFeePerGas", []),
         provider.getBlock("latest"),
@@ -16,8 +16,12 @@ const eip1559GasPrice = async (provider: BundlerJsonRpcProvider) => {
     return { maxFeePerGas, maxPriorityFeePerGas }
 };
 
+const legacyGasPrice =async (provider:JsonRpcProvider) => {
+    
+}
 
-export const getGasPrice = (provider: BundlerJsonRpcProvider): UserOperationMiddlewareFn => async (ctx) => {
+
+export const getGasPrice = (provider: JsonRpcProvider): UserOperationMiddlewareFn => async (ctx) => {
     let eip1559Error
     try {
         const { maxFeePerGas, maxPriorityFeePerGas } = await eip1559GasPrice(provider)
