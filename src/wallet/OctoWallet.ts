@@ -13,7 +13,7 @@ import {
   DiamondCutFacet__factory,
 } from "../typechain";
 import { WalletUserOpBuilder } from "../builder";
-import { DiamondWalletContracts } from "../constants";
+import { OctoDefiContracts } from "../constants";
 import { IDiamondLoupe } from "../typechain/DiamondLoupeFacet";
 import { IDiamond } from "../typechain/DiamondCutFacet";
 import { OctoClient } from "../client/OctoClient";
@@ -29,7 +29,6 @@ export class OctoWallet {
   private publicProvider: JsonRpcProvider;
   private userOPBuilder: WalletUserOpBuilder;
   private client: OctoClient;
-  private functions: Array<BytesLike>;
   private isDeployed: boolean;
 
   private constructor(
@@ -44,7 +43,6 @@ export class OctoWallet {
     this.walletAddress = ZeroAddress;
     this.userOPBuilder = builder;
     this.client = client;
-    this.functions = [];
     this.isDeployed = false;
   }
 
@@ -58,7 +56,10 @@ export class OctoWallet {
 
     const chainId = (await publicProvider.getNetwork()).chainId;
 
-    const contracts = DiamondWalletContracts[Number(chainId)];
+    if (!(Number(chainId) in OctoDefiContracts))
+      throw Error("Not valid chain!");
+
+    const contracts = OctoDefiContracts[Number(chainId)];
 
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
@@ -68,24 +69,41 @@ export class OctoWallet {
       bundler,
       publicProvider,
       contracts.Factory,
-      { entryPoint: entryPoint, salt: opts?.salt }
+      {
+        entryPoint: entryPoint,
+        salt: opts?.salt,
+        walletAddress: opts?.walletAddress,
+      }
     );
 
     const client = await OctoClient.init(rpcUrl, bundlerRpcUrl);
 
     const instance = new OctoWallet(signer, publicProvider, client, builder);
 
+    if (opts?.walletAddress) {
+      const owner = await instance.getWalletOwner();
+
+      const signerAddress = await signer.getAddress();
+      if (owner != signerAddress)
+        throw Error("Signer is not the owner of this wallet!");
+    }
+
     instance.walletAddress = instance.userOPBuilder.getSender();
 
-    instance.isDeployed = await instance.checkDeployment();
+    instance.isDeployed =
+      (await instance.publicProvider.getCode(instance.walletAddress)).length >
+      2;
 
     return instance;
   }
 
-  private async checkDeployment(): Promise<boolean> {
-    const byteCode = await this.publicProvider.getCode(this.walletAddress);
+  private async checkDeployment() {
+    if (!this.isDeployed) {
+      const byteCode = await this.publicProvider.getCode(this.walletAddress);
 
-    return byteCode.length > 2;
+      if (!(byteCode.length > 2))
+        throw Error("Wallet not deployed. Need atleast one transaction!!");
+    }
   }
 
   /* ====== Getter Functions ====== */
@@ -112,10 +130,7 @@ export class OctoWallet {
   /* ======= Core Facet Getter Functions ====== */
 
   async getFacetAddresses(): Promise<Array<string>> {
-    if (!this.isDeployed) {
-      if (!(await this.checkDeployment()))
-        throw Error("Diamond Wallet not deployed!!");
-    }
+    await this.checkDeployment();
 
     return await DiamondLoupeFacet__factory.connect(
       this.walletAddress,
@@ -124,10 +139,7 @@ export class OctoWallet {
   }
 
   async getFacets(): Promise<Array<IDiamondLoupe.FacetStructOutput>> {
-    if (!this.isDeployed) {
-      if (!(await this.checkDeployment()))
-        throw Error("Diamond Wallet not deployed!!");
-    }
+    await this.checkDeployment();
     return await DiamondLoupeFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
@@ -135,10 +147,7 @@ export class OctoWallet {
   }
 
   async getWalletOwner(): Promise<string> {
-    if (!this.isDeployed) {
-      if (!(await this.checkDeployment()))
-        throw Error("Diamond Wallet not deployed!!");
-    }
+    await this.checkDeployment();
     return await OwnershipFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
