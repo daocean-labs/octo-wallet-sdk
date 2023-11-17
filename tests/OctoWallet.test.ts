@@ -14,7 +14,9 @@ describe("DiamondWallet", () => {
   beforeEach(async () => {
     provider = new JsonRpcProvider(rpcURL);
 
-    wallet = await OctoWallet.init(signer, stackupRpcUrl, rpcURL);
+    wallet = await OctoWallet.init(signer, stackupRpcUrl, rpcURL, {
+      salt: BigInt(103),
+    });
 
     walletAddress = wallet.getWalletAddress();
 

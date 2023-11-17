@@ -84,7 +84,8 @@ export class OctoWallet {
 
   private async checkDeployment(): Promise<boolean> {
     const byteCode = await this.publicProvider.getCode(this.walletAddress);
-    return byteCode.length != 0;
+
+    return byteCode.length > 2;
   }
 
   /* ====== Getter Functions ====== */
@@ -111,7 +112,11 @@ export class OctoWallet {
   /* ======= Core Facet Getter Functions ====== */
 
   async getFacetAddresses(): Promise<Array<string>> {
-    if (!this.isDeployed) throw Error("Diamond Wallet not deployed!!");
+    if (!this.isDeployed) {
+      if (!(await this.checkDeployment()))
+        throw Error("Diamond Wallet not deployed!!");
+    }
+
     return await DiamondLoupeFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
@@ -119,7 +124,10 @@ export class OctoWallet {
   }
 
   async getFacets(): Promise<Array<IDiamondLoupe.FacetStructOutput>> {
-    if (!this.isDeployed) throw Error("Diamond Wallet not deployed!!");
+    if (!this.isDeployed) {
+      if (!(await this.checkDeployment()))
+        throw Error("Diamond Wallet not deployed!!");
+    }
     return await DiamondLoupeFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
@@ -127,7 +135,10 @@ export class OctoWallet {
   }
 
   async getWalletOwner(): Promise<string> {
-    if (!this.isDeployed) throw Error("Diamond Wallet not deployed!!");
+    if (!this.isDeployed) {
+      if (!(await this.checkDeployment()))
+        throw Error("Diamond Wallet not deployed!!");
+    }
     return await OwnershipFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
