@@ -38,11 +38,23 @@ The `OctoWallet` class is designed to interact with a smart contract wallet desi
 
 1. **Initialization**:
 
+   If the signer has no active wallet you can initialize the wallet as follows:
+
    ```javascript
    const signer = ...; // Initialize an Ethereum signer
    const bundlerRpcUrl = '...'; // URL of the user operation bundler
    const rpcUrl = '...'; // URL of the public Ethereum network
    const octoWallet = await OctoWallet.init(signer, bundlerRpcUrl, rpcUrl);
+   ```
+
+   If you want to have access to a specific wallet with a known address you can initialize as follows:
+
+   ```javascript
+   const signer = ...; // Initialize an Ethereum signer
+   const bundlerRpcUrl = '...'; // URL of the user operation bundler
+   const rpcUrl = '...'; // URL of the public Ethereum network
+   const walletAddress = "0x"; // Address of the smart contract wallet
+   const octoWallet = await OctoWallet.init(signer, bundlerRpcUrl, rpcUrl,{walletAddress: walletAddress});
    ```
 
 2. **Accessing Information**:

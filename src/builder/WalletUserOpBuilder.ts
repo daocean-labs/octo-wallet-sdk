@@ -26,6 +26,10 @@ const DEFAULT_PRIVATE_KEY =
   "0x0123456789012345678901234567890123456789012345678901234567890123"; // Replace with your private key
 const DEFAULT_WALLET = new Wallet(DEFAULT_PRIVATE_KEY);
 
+interface IWalletUserOpBuilderOpts extends IPresetBuilderOpts {
+  walletAddress?: string;
+}
+
 export class WalletUserOpBuilder extends UserOperationBuilder {
   private signer: ethers.Signer;
   private entryPoint: EntryPoint;
@@ -40,7 +44,7 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
     bundler: BundlerJsonRpcProvider,
     publicProvider: JsonRpcProvider,
     factoryAddress: string,
-    opts?: IPresetBuilderOpts
+    opts?: IWalletUserOpBuilderOpts
   ) {
     super();
 
@@ -69,7 +73,7 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
     bundler: BundlerJsonRpcProvider,
     publicProvider: JsonRpcProvider,
     factoryAddress: string,
-    opts?: IPresetBuilderOpts
+    opts?: IWalletUserOpBuilderOpts
   ) {
     const instance = new WalletUserOpBuilder(
       signer,
@@ -79,25 +83,29 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
       opts
     );
 
-    try {
-      instance.initCode = hexConcat([
-        await instance.factory.getAddress(),
-        instance.factory.interface.encodeFunctionData("createWallet", [
-          await instance.signer.getAddress(),
-          opts?.salt ? opts.salt.toString() : BigInt(0),
-        ]),
-      ]);
+    if (opts?.walletAddress) {
+      instance.walletAddress = opts.walletAddress;
+    } else {
+      try {
+        instance.initCode = hexConcat([
+          await instance.factory.getAddress(),
+          instance.factory.interface.encodeFunctionData("createWallet", [
+            await instance.signer.getAddress(),
+            opts?.salt ? opts.salt.toString() : BigInt(0),
+          ]),
+        ]);
 
-      await instance.entryPoint
-        .getFunction("getSenderAddress")
-        .staticCall(instance.initCode);
+        await instance.entryPoint
+          .getFunction("getSenderAddress")
+          .staticCall(instance.initCode);
 
-      throw new Error("getSenderAddress: unexpected result");
-    } catch (error: any) {
-      const addr = error?.revert?.args[0];
-      if (!addr) throw error;
+        throw new Error("getSenderAddress: unexpected result");
+      } catch (error: any) {
+        const addr = error?.revert?.args[0];
+        if (!addr) throw error;
 
-      instance.walletAddress = addr;
+        instance.walletAddress = addr;
+      }
     }
 
     const base = instance
