@@ -140,10 +140,11 @@ export class OctoWallet {
 
   async getFacets(): Promise<Array<IDiamondLoupe.FacetStructOutput>> {
     await this.checkDeployment();
-    return await DiamondLoupeFacet__factory.connect(
+    const facets = await DiamondLoupeFacet__factory.connect(
       this.walletAddress,
       this.publicProvider
     ).facets();
+    return facets
   }
 
   async getWalletOwner(): Promise<string> {
