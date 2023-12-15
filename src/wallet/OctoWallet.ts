@@ -245,4 +245,8 @@ export class OctoWallet {
       this.userOPBuilder.setCallData(functionCallData)
     );
   }
+
+  async sendCustomUserOp(functionCallData: string) {
+    return await this.sendUserOp(this.userOPBuilder.setCallData(functionCallData))
+  }
 }
