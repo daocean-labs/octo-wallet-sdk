@@ -1,3 +1,6 @@
+import { StrategyBuilderFacet__factory } from "../typechain";
+import { Interface } from "ethers";
+
 export interface ContractLib {
   [key: number]: any;
 }
@@ -19,3 +22,38 @@ export const ERC20TokenContracts: ContractLib = {
     DUSD: "0xF14b3F72b99027d258fcFeB09e5263F045D546A6",
   },
 };
+
+export interface FacetData {
+  name: string;
+  interface: Interface;
+  description: string;
+}
+
+export interface Facets {
+  [key: string]: FacetData;
+}
+
+export interface DeployedFacets {
+  [key: number]: Facets
+}
+
+export const octoDefiFacets: DeployedFacets = {
+  1337: {
+    '0x89CD9aec31F1C06773cFCb91f58cC7DA9b976352': {
+      name: 'StrategyBuilderFacet',
+      interface: StrategyBuilderFacet__factory.createInterface(),
+      description: 'The strategy builder enable the creation of own defi strategies',
+    },
+  }
+};
+
+export function getFacetAddressByName(facets: DeployedFacets, name: string, chainId: number) {
+  if (chainId in facets) {
+    for (const address in facets) {
+      if (facets[chainId][address].name === name) {
+        return address
+      }
+    }
+  }
+  return null
+}

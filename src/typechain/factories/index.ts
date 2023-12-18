@@ -8,4 +8,5 @@ export { IERC20Metadata__factory } from "./IERC20Metadata__factory";
 export { OctoWalletFactory__factory } from "./OctoWalletFactory__factory";
 export { OwnershipFacet__factory } from "./OwnershipFacet__factory";
 export { SmartContractWalletFacet__factory } from "./SmartContractWalletFacet__factory";
+export { StrategyBuilderFacet__factory } from "./StrategyBuilderFacet__factory";
 export { Token__factory } from "./Token__factory";
