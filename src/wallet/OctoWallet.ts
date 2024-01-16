@@ -63,7 +63,7 @@ export class OctoWallet {
 
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
-
+    console.log("Test1")
     const builder = await WalletUserOpBuilder.init(
       signer,
       bundler,
