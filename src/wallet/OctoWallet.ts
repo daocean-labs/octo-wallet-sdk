@@ -76,7 +76,7 @@ export class OctoWallet {
       }
     );
 
-    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl);
+    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl, { entryPoint: entryPoint });
 
     const instance = new OctoWallet(signer, publicProvider, client, builder);
 
