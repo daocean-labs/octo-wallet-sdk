@@ -57,7 +57,7 @@ export class OctoWallet {
     const chainId = (await publicProvider.getNetwork()).chainId;
 
     if (!(Number(chainId) in OctoDefiContracts))
-      throw Error("Not valid chain!");
+      throw Error(`ChainId: ${chainId.toString()}:Not valid chain!`);
 
     const contracts = OctoDefiContracts[Number(chainId)];
 
