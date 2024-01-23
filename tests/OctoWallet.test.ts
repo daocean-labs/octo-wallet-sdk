@@ -25,21 +25,20 @@ describe("DiamondWallet", () => {
 
     const balance = await signer.provider?.getBalance(walletAddress);
 
-    const chainId = (await provider.getNetwork()).chainId
+    const chainId = (await provider.getNetwork()).chainId;
 
-    const entryPointAddress = OctoDefiContracts[Number(chainId)].EntryPoint
+    const entryPointAddress = OctoDefiContracts[Number(chainId)].EntryPoint;
 
-    entryPoint = EntryPoint__factory.connect(entryPointAddress, signer)
+    entryPoint = EntryPoint__factory.connect(entryPointAddress, signer);
 
-    const depositInfo = await entryPoint.deposits(walletAddress)
+    const depositInfo = await entryPoint.deposits(walletAddress);
 
-
-    if (depositInfo.deposit < ethers.parseEther("0.1")) {
-      const trx = await entryPoint.depositTo(walletAddress, { value: ethers.parseEther("0.02") })
-      await trx.wait(1)
+    if (depositInfo.deposit < ethers.parseEther("5.0")) {
+      const trx = await entryPoint.depositTo(walletAddress, {
+        value: ethers.parseEther("10"),
+      });
+      await trx.wait(1);
     }
-
-
   }, 70000);
 
   describe("wallet information test", () => {
