@@ -105,7 +105,7 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
       } catch (error: any) {
         console.log(error)
         let addr: string = ""
-        if (error.revert.args) {
+        if (error?.revert?.args) {
           addr = error.revert.args[0]
         } else {
           const senderError = instance.entryPoint.interface.getError("SenderAddressResult")

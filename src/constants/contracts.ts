@@ -10,14 +10,17 @@ export const OctoDefiContracts: ContractLib = {
   1337: {
     EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
     Factory: "0x9Bcb695Ea0BBeC9f35417A6B36Bd8C936dafdD20",
+    Paymaster: "",
   },
   1131: {
     EntryPoint: "0x4F57D8D6AF4b2560323dF665D8E2b609B9DA9948",
     Factory: "0x64840D2590A91ce8Ad39cE9710FA49356a0D68B7",
+    Paymaster: "",
   },
   11155111: {
     EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
     Factory: "0xA59A4Ffe7E96F65bFD63cc671289b3a6D25998Fd",
+    Paymaster: "0xCbD4fa342d45DE78027672ae816b1067359Dfccb",
   }
 };
 

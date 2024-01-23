@@ -33,24 +33,13 @@ describe("DiamondWallet", () => {
 
     const depositInfo = await entryPoint.deposits(walletAddress)
 
-    console.log(depositInfo)
 
     if (depositInfo.deposit < ethers.parseEther("0.1")) {
       const trx = await entryPoint.depositTo(walletAddress, { value: ethers.parseEther("0.02") })
       await trx.wait(1)
     }
 
-    // if (
-    //   (typeof balance == "bigint" && balance <= parseEther("0.1")) ||
-    //   typeof balance == "undefined"
-    // ) {
-    //   const tx = await signer.sendTransaction({
-    //     to: walletAddress,
-    //     value: STARTING_BALANCE,
-    //   });
 
-    //   await tx.wait(1);
-    // }
   }, 70000);
 
   describe("wallet information test", () => {
