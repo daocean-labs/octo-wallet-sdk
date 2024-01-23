@@ -57,13 +57,13 @@ export class OctoWallet {
     const chainId = (await publicProvider.getNetwork()).chainId;
 
     if (!(Number(chainId) in OctoDefiContracts))
-      throw Error("Not valid chain!");
+      throw Error(`ChainId: ${chainId.toString()}:Not valid chain!`);
 
     const contracts = OctoDefiContracts[Number(chainId)];
 
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
-
+    console.log("Test1")
     const builder = await WalletUserOpBuilder.init(
       signer,
       bundler,
@@ -76,7 +76,7 @@ export class OctoWallet {
       }
     );
 
-    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl);
+    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl, { entryPoint: entryPoint });
 
     const instance = new OctoWallet(signer, publicProvider, client, builder);
 

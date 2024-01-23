@@ -95,15 +95,26 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
           ]),
         ]);
 
+        console.log(await instance.entryPoint.getAddress())
+
         await instance.entryPoint
           .getFunction("getSenderAddress")
           .staticCall(instance.initCode);
 
         throw new Error("getSenderAddress: unexpected result");
       } catch (error: any) {
-        const addr = error?.revert?.args[0];
-        if (!addr) throw error;
+        console.log(error)
+        let addr: string = ""
+        if (error?.revert?.args) {
+          addr = error.revert.args[0]
+        } else {
+          const senderError = instance.entryPoint.interface.getError("SenderAddressResult")
+          if (senderError) {
+            addr = instance.entryPoint.interface.decodeErrorResult("SenderAddressResult", error.info.error.data)[0]
+            if (!addr) throw error;
 
+          }
+        }
         instance.walletAddress = addr;
       }
     }
