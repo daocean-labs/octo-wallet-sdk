@@ -1,13 +1,16 @@
-import { JsonRpcProvider, ZeroAddress, parseEther } from "ethers";
+import { JsonRpcProvider, ZeroAddress, ethers, parseEther } from "ethers";
 import { OctoWallet } from "../src";
 import * as config from "./helper-test-config";
+import { EntryPoint, EntryPoint__factory } from "../src/typechain";
+import { OctoDefiContracts } from "../src/constants";
 
-const STARTING_BALANCE = parseEther("1.0");
+const STARTING_BALANCE = parseEther("0.1");
 
 describe("DiamondWallet", () => {
   let wallet: OctoWallet;
   let walletAddress: string;
   let provider: JsonRpcProvider;
+  let entryPoint: EntryPoint;
 
   const { signer, rpcURL, stackupRpcUrl } = config;
 
@@ -22,17 +25,32 @@ describe("DiamondWallet", () => {
 
     const balance = await signer.provider?.getBalance(walletAddress);
 
-    if (
-      (typeof balance == "bigint" && balance <= parseEther("1.0")) ||
-      typeof balance == "undefined"
-    ) {
-      const tx = await signer.sendTransaction({
-        to: walletAddress,
-        value: STARTING_BALANCE,
-      });
+    const chainId = (await provider.getNetwork()).chainId
 
-      await tx.wait(1);
+    const entryPointAddress = OctoDefiContracts[Number(chainId)].EntryPoint
+
+    entryPoint = EntryPoint__factory.connect(entryPointAddress, signer)
+
+    const depositInfo = await entryPoint.deposits(walletAddress)
+
+    console.log(depositInfo)
+
+    if (depositInfo.deposit < ethers.parseEther("0.1")) {
+      const trx = await entryPoint.depositTo(walletAddress, { value: ethers.parseEther("0.02") })
+      await trx.wait(1)
     }
+
+    // if (
+    //   (typeof balance == "bigint" && balance <= parseEther("0.1")) ||
+    //   typeof balance == "undefined"
+    // ) {
+    //   const tx = await signer.sendTransaction({
+    //     to: walletAddress,
+    //     value: STARTING_BALANCE,
+    //   });
+
+    //   await tx.wait(1);
+    // }
   }, 70000);
 
   describe("wallet information test", () => {
