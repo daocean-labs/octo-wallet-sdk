@@ -42,6 +42,17 @@ describe("DiamondWallet", () => {
       });
       await trx.wait(1);
     }
+
+    const balance = await provider.getBalance(walletAddress);
+
+    if (balance < ethers.parseEther("0.5")) {
+      const trx = await signer.sendTransaction({
+        to: walletAddress,
+        value: ethers.parseEther("0.6"),
+      });
+
+      await trx.wait(1);
+    }
   }, 70000);
 
   test("send ether to a recipient address", async () => {
