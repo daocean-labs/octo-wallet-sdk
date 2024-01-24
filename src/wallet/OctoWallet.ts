@@ -5,7 +5,7 @@ import {
   ethers,
   isAddress,
 } from "ethers";
-import { BundlerJsonRpcProvider } from "userop";
+import { BundlerJsonRpcProvider, UserOperationMiddlewareFn } from "userop";
 import {
   DiamondLoupeFacet__factory,
   SmartContractWalletFacet__factory,
@@ -21,6 +21,7 @@ import { OctoClient } from "../client/OctoClient";
 export interface IOctoWallet {
   walletAddress?: string;
   salt?: bigint;
+  paymasterMiddleware?: UserOperationMiddlewareFn;
 }
 
 export class OctoWallet {
@@ -63,7 +64,7 @@ export class OctoWallet {
 
     const entryPoint = contracts.EntryPoint;
     const bundler = new BundlerJsonRpcProvider(bundlerRpcUrl);
-    console.log("Test1")
+
     const builder = await WalletUserOpBuilder.init(
       signer,
       bundler,
@@ -73,10 +74,13 @@ export class OctoWallet {
         entryPoint: entryPoint,
         salt: opts?.salt,
         walletAddress: opts?.walletAddress,
+        paymasterMiddleware: opts?.paymasterMiddleware,
       }
     );
 
-    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl, { entryPoint: entryPoint });
+    const client = await OctoClient.init(rpcUrl, bundlerRpcUrl, {
+      entryPoint: entryPoint,
+    });
 
     const instance = new OctoWallet(signer, publicProvider, client, builder);
 
@@ -144,7 +148,7 @@ export class OctoWallet {
       this.walletAddress,
       this.publicProvider
     ).facets();
-    return facets
+    return facets;
   }
 
   async getWalletOwner(): Promise<string> {
@@ -228,25 +232,9 @@ export class OctoWallet {
     );
   }
 
-  async transferOwnership(newOwner: string) {
-    if (!isAddress(newOwner))
-      throw Error(`New owner ${newOwner} is not a valid evm address`);
-
-    const intrf = OwnershipFacet__factory.connect(
-      this.walletAddress,
-      this.publicProvider
-    ).interface;
-
-    const functionCallData = intrf.encodeFunctionData("transferOwnership", [
-      newOwner,
-    ]);
-
+  async sendCustomUserOp(functionCallData: string) {
     return await this.sendUserOp(
       this.userOPBuilder.setCallData(functionCallData)
     );
-  }
-
-  async sendCustomUserOp(functionCallData: string) {
-    return await this.sendUserOp(this.userOPBuilder.setCallData(functionCallData))
   }
 }

@@ -95,24 +95,25 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
           ]),
         ]);
 
-        console.log(await instance.entryPoint.getAddress())
-
         await instance.entryPoint
           .getFunction("getSenderAddress")
           .staticCall(instance.initCode);
 
         throw new Error("getSenderAddress: unexpected result");
       } catch (error: any) {
-        console.log(error)
-        let addr: string = ""
+        let addr: string = "";
         if (error?.revert?.args) {
-          addr = error.revert.args[0]
+          addr = error.revert.args[0];
         } else {
-          const senderError = instance.entryPoint.interface.getError("SenderAddressResult")
+          const senderError = instance.entryPoint.interface.getError(
+            "SenderAddressResult"
+          );
           if (senderError) {
-            addr = instance.entryPoint.interface.decodeErrorResult("SenderAddressResult", error.info.error.data)[0]
+            addr = instance.entryPoint.interface.decodeErrorResult(
+              "SenderAddressResult",
+              error.info.error.data
+            )[0];
             if (!addr) throw error;
-
           }
         }
         instance.walletAddress = addr;
@@ -127,14 +128,14 @@ export class WalletUserOpBuilder extends UserOperationBuilder {
         ),
       })
       .useMiddleware(instance.resolveAccount)
-      .useMiddleware(getGasPrice(instance.publicProvider))
-      .useMiddleware(estimateUserOperationGas(instance.bundler));
+      .useMiddleware(getGasPrice(instance.publicProvider));
+    // .useMiddleware(estimateUserOperationGas(instance.bundler));
 
     //TODO: Implement PaymasterMiddleware
-    // const withPM = opts?.paymasterMiddleware
-    //     ? base.useMiddleware(opts.paymasterMiddleware)
-    //     : base.useMiddleware(estimateUserOperationGas(instance.provider));
+    const withPM = opts?.paymasterMiddleware
+      ? base.useMiddleware(opts.paymasterMiddleware)
+      : base.useMiddleware(estimateUserOperationGas(instance.bundler));
 
-    return base.useMiddleware(EOASignature(instance.signer));
+    return withPM.useMiddleware(EOASignature(instance.signer));
   }
 }
