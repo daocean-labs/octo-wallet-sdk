@@ -15,7 +15,7 @@ export const OctoDefiContracts: ContractLib = {
   },
   11155111: {
     EntryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
-    Factory: "0xA59A4Ffe7E96F65bFD63cc671289b3a6D25998Fd",
+    Factory: "0x3b8d4697ADC61D73063309239bd459B68d3C41B5",
     Paymaster: "0x544E2E7423166a0184f34629FB32eD2556947Cb2",
   },
 };
