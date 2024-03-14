@@ -24,7 +24,7 @@ export const simplePaymaster =
     //TODO: Calculate PreverificationGas
     console.log(Number(est.preVerificationGas));
 
-    ctx.op.preVerificationGas = 50_000;
+    ctx.op.preVerificationGas = 100_000;
     ctx.op.verificationGasLimit =
       est.verificationGasLimit ?? est.verificationGas;
     ctx.op.callGasLimit = est.callGasLimit;

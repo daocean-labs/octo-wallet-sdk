@@ -21,6 +21,7 @@ import { OctoClient } from "../client/OctoClient";
 export interface IOctoWallet {
   walletAddress?: string;
   salt?: bigint;
+  factory?: string;
   paymasterMiddleware?: UserOperationMiddlewareFn;
 }
 
@@ -51,6 +52,7 @@ export class OctoWallet {
     signer: ethers.Signer,
     bundlerRpcUrl: string,
     rpcUrl: string,
+    facotry: string,
     opts?: IOctoWallet
   ) {
     const publicProvider = new JsonRpcProvider(rpcUrl);
@@ -69,7 +71,7 @@ export class OctoWallet {
       signer,
       bundler,
       publicProvider,
-      contracts.Factory,
+      facotry,
       {
         entryPoint: entryPoint,
         salt: opts?.salt,

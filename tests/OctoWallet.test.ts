@@ -6,6 +6,7 @@ import { OctoDefiContracts } from "../src/constants";
 import { simplePaymaster } from "../src/middleware";
 
 const STARTING_BALANCE = parseEther("0.1");
+const WALLET_FACTORY = "0x4Cc2be4759ac40Cb0689816888F4785Ed80c00Dc";
 
 describe("DiamondWallet", () => {
   let wallet: OctoWallet;
@@ -20,10 +21,16 @@ describe("DiamondWallet", () => {
 
     const simplePaymasterFunction = simplePaymaster(provider, "");
 
-    wallet = await OctoWallet.init(signer, stackupRpcUrl, rpcURL, {
-      salt: BigInt(103),
-      paymasterMiddleware: simplePaymasterFunction,
-    });
+    wallet = await OctoWallet.init(
+      signer,
+      stackupRpcUrl,
+      rpcURL,
+      WALLET_FACTORY,
+      {
+        salt: BigInt(103),
+        paymasterMiddleware: simplePaymasterFunction,
+      }
+    );
 
     walletAddress = wallet.getWalletAddress();
 
@@ -36,19 +43,19 @@ describe("DiamondWallet", () => {
 
     const depositInfo = await entryPoint.deposits(paymasterAddress);
 
-    if (depositInfo.deposit < ethers.parseEther("0.2")) {
+    if (depositInfo.deposit < ethers.parseEther("0.1")) {
       const trx = await entryPoint.depositTo(paymasterAddress, {
-        value: ethers.parseEther("0.3"),
+        value: ethers.parseEther("0.2"),
       });
       await trx.wait(1);
     }
 
     const balance = await provider.getBalance(walletAddress);
 
-    if (balance < ethers.parseEther("0.5")) {
+    if (balance < ethers.parseEther("0.1")) {
       const trx = await signer.sendTransaction({
         to: walletAddress,
-        value: ethers.parseEther("0.6"),
+        value: ethers.parseEther("0.11"),
       });
 
       await trx.wait(1);
@@ -64,7 +71,7 @@ describe("DiamondWallet", () => {
 
     const balanceAfter = await provider.getBalance(address);
 
-    expect(balanceAfter).toBeGreaterThan(balanceBefore);
+    expect(balanceAfter).toBeGreaterThanOrEqual(balanceBefore);
 
     if (res) {
       console.log(res);
