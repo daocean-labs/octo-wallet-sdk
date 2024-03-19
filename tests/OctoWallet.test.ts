@@ -4,9 +4,11 @@ import * as config from "./helper-test-config";
 import { EntryPoint, EntryPoint__factory } from "../src/typechain";
 import { OctoDefiContracts } from "../src/constants";
 import { simplePaymaster } from "../src/middleware";
+import { Presets } from "userop";
 
 const STARTING_BALANCE = parseEther("0.1");
 const WALLET_FACTORY = "0x4Cc2be4759ac40Cb0689816888F4785Ed80c00Dc";
+const pamyasterURL = process.env.PAYMASTER_RPC_URL || "";
 
 describe("DiamondWallet", () => {
   let wallet: OctoWallet;
@@ -19,7 +21,13 @@ describe("DiamondWallet", () => {
   beforeEach(async () => {
     provider = new JsonRpcProvider(rpcURL);
 
-    const simplePaymasterFunction = simplePaymaster(provider, "");
+    // const simplePaymasterFunction = simplePaymaster(provider, "");
+
+    const paymasterContext = { type: "payg" };
+    const paymaster = Presets.Middleware.verifyingPaymaster(
+      pamyasterURL,
+      paymasterContext
+    );
 
     wallet = await OctoWallet.init(
       signer,
@@ -28,7 +36,7 @@ describe("DiamondWallet", () => {
       WALLET_FACTORY,
       {
         salt: BigInt(103),
-        paymasterMiddleware: simplePaymasterFunction,
+        paymasterMiddleware: paymaster,
       }
     );
 
